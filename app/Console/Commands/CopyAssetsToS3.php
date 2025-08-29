@@ -55,7 +55,7 @@ class CopyAssetsToS3 extends Command {
             $this->line('Copying /css/custom.css...');
             if (!Storage::disk($to)->put('/css/custom.css', Storage::disk($from)->get('/css/custom.css'))) {
                 $this->error('Failed to copy file (css/custom.css)');
-            };
+            }
         }
     }
 }
