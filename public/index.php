@@ -19,6 +19,7 @@ define('LARAVEL_START', microtime(true));
 |
 */
 
+require __DIR__.'/../app/Helpers/AutoHelpers.php';
 require __DIR__.'/../vendor/autoload.php';
 
 /*

@@ -19,6 +19,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class CharacterManager extends Service {
@@ -186,15 +187,16 @@ class CharacterManager extends Service {
      * @param \App\Models\Character\CharacterImage $characterImage
      */
     public function processImage($characterImage) {
-        $imageProperties = getimagesize($characterImage->imagePath.'/'.$characterImage->imageFileName);
-        if ($imageProperties[0] > 2000 || $imageProperties[1] > 2000) {
+        $image = Image::make(Storage::get($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
+
+        if ($image->width() > 2000 || $image->height() > 2000) {
             // For large images (in terms of dimensions),
             // use imagick instead, as it's better at handling them
             Config::set('image.driver', 'imagick');
         }
 
         // Trim transparent parts of image.
-        $image = Image::make($characterImage->imagePath.'/'.$characterImage->imageFileName)->trim('transparent');
+        $image->trim('transparent');
 
         if (config('lorekeeper.settings.masterlist_image_automation') == 1) {
             // Make the image be square
@@ -243,11 +245,11 @@ class CharacterManager extends Service {
             }
 
             // Save the processed image
-            $image->save($characterImage->imagePath.'/'.$characterImage->fullsizeFileName, 100, config('lorekeeper.settings.masterlist_fullsizes_format') != null ? config('lorekeeper.settings.masterlist_fullsizes_format') : $characterImage->fullsize_extension);
+            Storage::put($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
         } else {
             // Delete fullsize if it was previously created.
-            if (isset($characterImage->fullsize_hash) ? file_exists(public_path($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName)) : false) {
-                unlink($characterImage->imagePath.'/'.$characterImage->fullsizeFileName);
+            if (isset($characterImage->fullsize_hash) ? Storage::fileExists($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName) : false) {
+                Storage::delete($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName);
             }
         }
 
@@ -321,7 +323,7 @@ class CharacterManager extends Service {
         }
 
         // Save the processed image
-        $image->save($characterImage->imagePath.'/'.$characterImage->imageFileName, 100, config('lorekeeper.settings.masterlist_image_format'));
+        Storage::put($characterImage->imageDirectory.'/'.$characterImage->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
     }
 
     /**
@@ -332,14 +334,14 @@ class CharacterManager extends Service {
      * @param mixed                                $isMyo
      */
     public function cropThumbnail($points, $characterImage, $isMyo = false) {
-        $imageProperties = getimagesize($characterImage->imagePath.'/'.$characterImage->imageFileName);
+        $imageProperties = getimagesize(asset($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
         if ($imageProperties[0] > 2000 || $imageProperties[1] > 2000) {
             // For large images (in terms of dimensions),
             // use imagick instead, as it's better at handling them
             Config::set('image.driver', 'imagick');
         }
 
-        $image = Image::make($characterImage->imagePath.'/'.$characterImage->imageFileName);
+        $image = Image::make(Storage::get($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
 
         if (!in_array(config('lorekeeper.settings.masterlist_image_format'), ['png', 'webp']) && config('lorekeeper.settings.masterlist_image_format') != null && config('lorekeeper.settings.masterlist_image_background') != null) {
             $canvas = Image::canvas($image->width(), $image->height(), config('lorekeeper.settings.masterlist_image_background'));
@@ -483,7 +485,7 @@ class CharacterManager extends Service {
         }
 
         // Save the thumbnail
-        $image->save($characterImage->thumbnailPath.'/'.$characterImage->thumbnailFileName, 100, config('lorekeeper.settings.masterlist_image_format'));
+        Storage::put($characterImage->thumbnailPath.'/'.$characterImage->thumbnailFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
     }
 
     /**
@@ -623,15 +625,6 @@ class CharacterManager extends Service {
                 if (!$subtype || $subtype->species_id != $data['species_id']) {
                     throw new \Exception('Selected subtype invalid or does not match species.');
                 }
-            }
-
-            //Check that species & rarity are selected
-            if (!(isset($data['species_id']) && $data['species_id'])) {
-                throw new \Exception('Characters require a species.');
-            }
-
-            if (!(isset($data['rarity_id']) && $data['rarity_id'])) {
-                throw new \Exception('Characters require a rarity.');
             }
 
             if (!$this->logAdminAction($user, 'Updated Image', 'Updated character image features on <a href="'.$image->character->url.'">#'.$image->id.'</a>')) {
@@ -830,16 +823,16 @@ class CharacterManager extends Service {
 
             if (config('lorekeeper.settings.masterlist_image_format') != null) {
                 // Remove old versions so that images in various filetypes don't pile up
-                if (file_exists($image->imagePath.'/'.$image->imageFileName)) {
-                    unlink($image->imagePath.'/'.$image->imageFileName);
+                if (Storage::fileExists($image->imageDirectory.'/'.$image->imageFileName)) {
+                    Storage::delete($image->imageDirectory.'/'.$image->imageFileName);
                 }
-                if (isset($image->fullsize_hash) ? file_exists(public_path($image->imageDirectory.'/'.$image->fullsizeFileName)) : false) {
-                    if (file_exists($image->imagePath.'/'.$image->fullsizeFileName)) {
-                        unlink($image->imagePath.'/'.$image->fullsizeFileName);
+                if (isset($image->fullsize_hash) ? Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName) : false) {
+                    if (Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName)) {
+                        Storage::delete($image->imageDirectory.'/'.$image->fullsizeFileName);
                     }
                 }
-                if (file_exists($image->imagePath.'/'.$image->thumbnailFileName)) {
-                    unlink($image->imagePath.'/'.$image->thumbnailFileName);
+                if (Storage::fileExists($image->imageDirectory.'/'.$image->thumbnailFileName)) {
+                    Storage::delete($image->imageDirectory.'/'.$image->thumbnailFileName);
                 }
 
                 // Set the image's extension in the DB as defined in settings
@@ -905,16 +898,16 @@ class CharacterManager extends Service {
             $image->delete();
 
             // Delete the image files
-            if (file_exists($image->imagePath.'/'.$image->imageFileName)) {
-                unlink($image->imagePath.'/'.$image->imageFileName);
+            if (Storage::fileExists($image->imageDirectory.'/'.$image->imageFileName)) {
+                Storage::delete($image->imageDirectory.'/'.$image->imageFileName);
             }
-            if (isset($image->fullsize_hash) ? file_exists(public_path($image->imageDirectory.'/'.$image->fullsizeFileName)) : false) {
-                if (file_exists($image->imagePath.'/'.$image->fullsizeFileName)) {
-                    unlink($image->imagePath.'/'.$image->fullsizeFileName);
+            if (isset($image->fullsize_hash) ? Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName) : false) {
+                if (Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName)) {
+                    Storage::delete($image->imageDirectory.'/'.$image->fullsizeFileName);
                 }
             }
-            if (file_exists($image->imagePath.'/'.$image->thumbnailFileName)) {
-                unlink($image->imagePath.'/'.$image->thumbnailFileName);
+            if (Storage::fileExists($image->imageDirectory.'/'.$image->thumbnailFileName)) {
+                Storage::delete($image->imageDirectory.'/'.$image->thumbnailFileName);
             }
 
             // Add a log for the character
@@ -1913,8 +1906,8 @@ class CharacterManager extends Service {
 
                 // Use default images for MYO slots without an image provided
                 if (!isset($data['image'])) {
-                    $data['image'] = public_path('images/myo.png');
-                    $data['thumbnail'] = public_path('images/myo-th.png');
+                    $data['image'] = 'images/myo.png';
+                    $data['thumbnail'] = 'images/myo-th.png';
                     $data['extension'] = config('lorekeeper.settings.masterlist_image_format') ?? 'png';
                     $data['fullsize_extension'] = config('lorekeeper.settings.masterlist_fullsizes_format') ?? $data['extension'];
                     $data['default_image'] = true;
@@ -1999,7 +1992,7 @@ class CharacterManager extends Service {
             // Save image
             $this->handleImage($data['image'], $image->imageDirectory, $image->imageFileName, null, isset($data['default_image']));
 
-            // Save thumbnail first before processing full image
+            // Save thumbnail
             if (isset($data['use_cropper'])) {
                 $this->cropThumbnail(Arr::only($data, ['x0', 'x1', 'y0', 'y1']), $image, $isMyo);
             } else {

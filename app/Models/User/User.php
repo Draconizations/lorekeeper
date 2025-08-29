@@ -24,6 +24,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail {
@@ -407,7 +408,7 @@ class User extends Authenticatable implements MustVerifyEmail {
             }
         }
 
-        return url('images/avatars/'.$this->avatar.'?v='.filemtime(public_path('images/avatars/'.$this->avatar)));
+        return asset('images/avatars/'.$this->avatar.'?v='.Storage::lastModified('images/avatars/'.$this->avatar));
     }
 
     /**

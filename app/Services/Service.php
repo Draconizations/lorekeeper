@@ -7,7 +7,7 @@ use App\Models\AdminLog;
 use App\Models\Currency\Currency;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\MessageBag;
 
 abstract class Service {
@@ -145,7 +145,7 @@ abstract class Service {
     }
 
     public function deleteImage($dir, $name) {
-        unlink($dir.'/'.$name);
+        Storage::delete(str_replace(public_path(), '', $dir.'/'.$name));
     }
 
     /**
@@ -304,10 +304,11 @@ abstract class Service {
 
     // Moves an old image within the same directory.
     private function moveImage($dir, $name, $oldName, $copy = false) {
+        $dir = str_replace(public_path(), '', $dir);
         if ($copy) {
-            File::copy($dir.'/'.$oldName, $dir.'/'.$name);
+            Storage::copy($dir.'/'.$oldName, $dir.'/'.$name);
         } else {
-            File::move($dir.'/'.$oldName, $dir.'/'.$name);
+            Storage::move($dir.'/'.$oldName, $dir.'/'.$name);
         }
 
         return true;
@@ -315,21 +316,21 @@ abstract class Service {
 
     // Moves an uploaded image into a directory, checking if it exists.
     private function saveImage($image, $dir, $name, $copy = false) {
-        if (!file_exists($dir)) {
+        $dir = str_replace(public_path(), '', $dir);
+        if (!Storage::directoryExists($dir)) {
             // Create the directory.
-            if (!mkdir($dir, 0755, true)) {
+            if (!Storage::makeDirectory($dir)) {
                 $this->setError('error', 'Failed to create image directory.');
 
                 return false;
             }
-            chmod($dir, 0755);
         }
-        if ($copy) {
-            File::copy($image, $dir.'/'.$name);
-        } else {
-            File::move($image, $dir.'/'.$name);
+
+        if (!Storage::putFileAs($dir, $image, $name)) {
+            $this->setError('error', 'Failed to save image.');
+
+            return false;
         }
-        chmod($dir.'/'.$name, 0755);
 
         return true;
     }

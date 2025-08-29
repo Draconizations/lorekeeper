@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DRIVER', 'local'),
+    'default' => env('FILESYSTEM_DRIVER', 'public'),
 
     /*
     |--------------------------------------------------------------------------
@@ -50,18 +50,22 @@ return [
 
         'public' => [
             'driver'     => 'local',
-            'root'       => storage_path('app/public'),
-            'url'        => env('APP_URL').'/storage',
+            'root'       => public_path(),
+            'url'        => env('APP_URL'),
             'visibility' => 'public',
         ],
 
         's3'     => [
-            'driver' => 's3',
-            'key'    => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION'),
-            'bucket' => env('AWS_BUCKET'),
-            'url'    => env('AWS_URL'),
+            'driver'            => 's3',
+            'key'               => env('AWS_ACCESS_KEY_ID'),
+            'secret'            => env('AWS_SECRET_ACCESS_KEY'),
+            'region'            => env('AWS_DEFAULT_REGION'),
+            'bucket'            => env('AWS_BUCKET'),
+            'endpoint'          => env('AWS_ENDPOINT'),
+            'url'               => env('AWS_URL'),
+            // required for cloudflare r2 to work due to a bug, see https://github.com/thephpleague/flysystem/issues/1759
+            'retain_visibility' => false,
+            'throw'             => true,
         ],
 
     ],

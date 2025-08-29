@@ -15,8 +15,8 @@ use App\Models\User\User;
 use App\Models\User\UserUpdateLog;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 use Laravel\Fortify\Contracts\TwoFactorAuthenticationProvider;
@@ -295,20 +295,21 @@ class UserService extends Service {
                 $file = 'images/avatars/'.$user->avatar;
                 //$destinationPath = 'uploads/' . $id . '/';
 
-                if (File::exists($file)) {
-                    if (!unlink($file)) {
-                        throw new \Exception('Failed to unlink old avatar.');
+                if (Storage::exists($file)) {
+                    if (!Storage::delete($file)) {
+                        throw new \Exception('Failed to delete old avatar.');
                     }
                 }
             }
 
             // Checks if uploaded file is a GIF
             if ($avatar->getClientOriginalExtension() == 'gif') {
-                if (!$avatar->move(public_path('images/avatars'), $filename)) {
-                    throw new \Exception('Failed to move file.');
+                if (!Storage::putFileAs('images/avatars', $avatar, $filename)) {
+                    throw new \Exception('Failed to upload avatar.');
                 }
             } else {
-                if (!Image::make($avatar)->resize(150, 150)->save(public_path('images/avatars/'.$filename))) {
+                $image = Image::make($avatar);
+                if (!Storage::put('images/avatars/'.$filename, $image->resize(150, 150)->encode(null, 100))) {
                     throw new \Exception('Failed to process avatar.');
                 }
             }
