@@ -485,7 +485,7 @@ class CharacterManager extends Service {
         }
 
         // Save the thumbnail
-        Storage::put($characterImage->thumbnailPath.'/'.$characterImage->thumbnailFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
+        Storage::put($characterImage->imageDirectory.'/'.$characterImage->thumbnailFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
     }
 
     /**
@@ -852,7 +852,7 @@ class CharacterManager extends Service {
             if (isset($data['use_cropper'])) {
                 $this->cropThumbnail(Arr::only($data, ['x0', 'x1', 'y0', 'y1']), $image, $isMyo);
             } else {
-                $this->handleImage($data['thumbnail'], $image->thumbnailPath, $image->thumbnailFileName);
+                $this->handleImage($data['thumbnail'], $image->imageDirectory, $image->thumbnailFileName);
             }
 
             // Process and save the image itself
