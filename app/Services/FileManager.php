@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\Config;
 
 class FileManager extends Service {
     /*
@@ -106,7 +105,7 @@ class FileManager extends Service {
             $this->setError('error', 'Could not upload file.');
 
             return false;
-        };
+        }
 
         return true;
     }

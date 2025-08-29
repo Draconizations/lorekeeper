@@ -1,7 +1,10 @@
 <?php
 
 /**
- * Generates the asset URL
+ * Generates the asset URL.
+ *
+ * @param mixed      $path
+ * @param mixed|null $secure
  */
 function asset($path, $secure = null) {
     $remote = false;

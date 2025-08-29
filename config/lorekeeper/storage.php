@@ -9,5 +9,5 @@
 */
 
 return [
-    'remote_assets' => ['images', 'files', 'css/custom']
+    'remote_assets' => ['images', 'files', 'css/custom'],
 ];
