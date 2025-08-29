@@ -840,7 +840,7 @@ class GalleryManager extends Service {
                 $constraint->upsize();
             });
 
-        Storage::put($submission->thumbnailPath.'/'.$submission->thumbnailFileName, $thumbnail->encode(config('lorkeeper.settings.masterlist_image_format'), 100));
+        Storage::put($submission->imageDirectory.'/'.$submission->thumbnailFileName, $thumbnail->encode(config('lorkeeper.settings.masterlist_image_format'), 100));
 
         return $submission;
     }
