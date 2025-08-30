@@ -232,73 +232,20 @@ class GeneticsService extends Service
         return $this->rollbackReturn(false);
     }
     
+    /**
+     * Creates a genome image
+     */
     public function createGenomeImage($data, $user) {
         DB::beginTransaction();
 
         try {
-            if(isset($data['description']) && $data['description']) $data['parsed_description'] = parse($data['description']);
-            $data['is_visible'] = isset($data['is_visible']);
-
-            $image = null;
-            if (isset($data['image']) && $data['image']) {
-                $image = $data['image'];
-                unset($data['image']);
-            } else {
-                throw new \Exception('Image upload is required.');
-            }
-
-            $usedLoci = [];
-
-            if (isset($data['loci_ids']) && $data['loci_ids']) {
-                for ($i = 0; $i < count($data['loci_ids']); $i++) {
-                    // check if this loci hasn't been set for this image already
-                    if (isset($usedLoci[$data['loci_ids'][$i]])) {
-                        throw new \Exception('Each loci is only allowed to be used once.');
-                    } else {
-                        $usedLoci[$data['loci_ids'][$i]] = true;
-                    }
-
-                    // check if the loci even exists
-                    $loci = Loci::find($data['loci_ids'][$i]);
-                    if (!$loci->id) throw new \Exception('Selected loci is invalid.');
-
-                    // check if the position doesn't exceed the length
-                    if ($data['loci_positions'][$i]) {
-                        if ($data['loci_positions'] > $loci->length) {
-                            throw new \Exception('Loci value may not exceed length.');
-                        }
-                    } else {
-                        $left = LociAllele::find($data['allele_left_ids'][$i]);
-                        $right = LociAllele::find($data['allele_right_ids'][$i]);
-
-                        if (
-                            !$left || $left->loci_id != $loci->id
-                            || ($right && $right->loci_id != $loci->id)
-                        ) {
-                            throw new \Exception('Selected allele is invalid or does not match loci.');
-                        }
-                    }
-                }
-            } else {
-                throw new \Exception('At least one loci association is required.');
-            }
+            $data = $this->fillImageData($data);
 
             $genomeImage = GenomeImage::create($data);
 
-            for ($i = 0; $i < count($data['loci_ids']); $i++) {
-                $loci = $data['loci_ids'][$i];
-                if ($data['loci_positions'][$i]) {
-                    $genomeImage->locis()->attach($loci, [ 'position' => $data['loci_positions'][$i]]);
-                }
-                if ($data['allele_left_ids'][$i]) {
-                    $genomeImage->locis()->attach($loci, [ 'position' => 0, 'allele_id' => $data['allele_left_ids'][$i]]);
-                }
-                if ($data['allele_right_ids'][$i]) {
-                    $genomeImage->locis()->attach($loci, [ 'position' => 1, 'allele_id' => $data['allele_right_ids'][$i]]);
-                }
-            }
+            $this->attachImageLoci($genomeImage, $data);
             
-            if ($image) $this->handleImage($image, $genomeImage->imagePath, $genomeImage->imageFileName);
+            if (isset($image) && $image) $this->handleImage($image, $genomeImage->imagePath, $genomeImage->imageFileName);
 
             return $this->commitReturn($genomeImage);
         } catch (\Exception $e) {
@@ -307,5 +254,92 @@ class GeneticsService extends Service
 
 
         return $this->rollbackReturn(false);
+    }
+
+    public function updateGenomeImage($genomeImage, $data) {
+        DB::beginTransaction();
+
+        try {
+            $data = $this->fillImageData($data);
+
+            $genomeImage->update($data);
+
+            $genomeImage->locis()->detach();
+
+            $this->attachImageLoci($genomeImage, $data);
+            
+            if (isset($image) && $image) $this->handleImage($image, $genomeImage->imagePath, $genomeImage->imageFileName);
+
+            return $this->commitReturn($genomeImage);
+        } catch (\Exception $e) {
+            $this->setError('error', $e->getMessage());
+        }
+
+
+        return $this->rollbackReturn(false);
+    }
+
+    private function fillImageData($data) {
+        if(isset($data['description']) && $data['description']) $data['parsed_description'] = parse($data['description']);
+        $data['is_visible'] = isset($data['is_visible']);
+
+        $image = null;
+        if (isset($data['image']) && $data['image']) {
+            $image = $data['image'];
+            unset($data['image']);
+        }
+
+        $usedLoci = [];
+
+        if (isset($data['loci_ids']) && $data['loci_ids']) {
+            for ($i = 0; $i < count($data['loci_ids']); $i++) {
+                // check if this loci hasn't been set for this image already
+                if (isset($usedLoci[$data['loci_ids'][$i]])) {
+                    throw new \Exception('Each loci is only allowed to be used once.');
+                } else {
+                    $usedLoci[$data['loci_ids'][$i]] = true;
+                }
+
+                // check if the loci even exists
+                $loci = Loci::find($data['loci_ids'][$i]);
+                if (!$loci->id) throw new \Exception('Selected loci is invalid.');
+
+                // check if the position doesn't exceed the length
+                if ($data['loci_positions'][$i]) {
+                    if ($data['loci_positions'][$i] > $loci->length) {
+                        throw new \Exception('Loci value may not exceed length.');
+                    }
+                } else {
+                    $left = LociAllele::find($data['allele_left_ids'][$i]);
+                    $right = LociAllele::find($data['allele_right_ids'][$i]);
+
+                    if (
+                        !$left || $left->loci_id != $loci->id
+                        || ($right && $right->loci_id != $loci->id)
+                    ) {
+                        throw new \Exception('Selected allele is invalid or does not match loci.');
+                    }
+                }
+            }
+        } else {
+            throw new \Exception('At least one loci association is required.');
+        }
+
+        return $data;
+    }
+
+    private function attachImageLoci($genomeImage, $data) {
+        for ($i = 0; $i < count($data['loci_ids']); $i++) {
+            $loci = $data['loci_ids'][$i];
+            if ($data['loci_positions'][$i]) {
+                $genomeImage->locis()->attach($loci, [ 'position' => $data['loci_positions'][$i]]);
+            }
+            if ($data['allele_left_ids'][$i]) {
+                $genomeImage->locis()->attach($loci, [ 'position' => 0, 'allele_id' => $data['allele_left_ids'][$i]]);
+            }
+            if ($data['allele_right_ids'][$i]) {
+                $genomeImage->locis()->attach($loci, [ 'position' => 1, 'allele_id' => $data['allele_right_ids'][$i]]);
+            }
+        }
     }
 }

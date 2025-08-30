@@ -44,7 +44,7 @@ class GenomeImage extends Model
     public static $updateRules = [
         'name' => 'required|between:3,64',
         'description' => 'nullable',
-        'image' => 'required|mimes:png',
+        'image' => 'mimes:png',
     ];
 
     /**********************************************************************************************
@@ -65,7 +65,7 @@ class GenomeImage extends Model
 
         SCOPES
 
-    **********************************************************************************************/
+**********************************************************************************************/
 
     /**
      * Scope a query to sort by sort order.

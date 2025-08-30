@@ -250,6 +250,52 @@ class GeneticsController extends Controller
         ]);
     }
 
+    public function getEditImage(Request $request, $id) {
+        $genomeImage = GenomeImage::find($id);
+        if (!$genomeImage) abort(404);
+
+        $list = Loci::with('images')->whereHas('images', function ($query) use ($genomeImage) {
+                $query->where('image_id', '=', $genomeImage->id);
+            })->orderBy('sort', 'DESC')->get();
+        
+        $lociList = [];
+
+        foreach($list as $loci) {
+            $id = $loci->id;
+            if (!array_key_exists($id, $lociList)) {
+                $lociList[$id] = [
+                    'id' => $id,
+                    'type' => $loci->type,
+                    'alleles' => $loci->alleles->pluck('name', 'id'),
+                    'length' => $loci->length,
+                    'left' => '',
+                    'right' => '',
+                    'position' => '',
+                ];
+            }
+
+            foreach($loci->images as $image) {         
+                $allele = $image->pivot->allele_id;
+                $position = $image->pivot->position;
+                
+                if ($allele && $position == 0) {
+                    $lociList[$id]['left'] = $allele;
+                } else if ($allele && $position == 1) {
+                    $lociList[$id]['right'] = $allele;
+                } else {
+                    $lociList[$id]['position'] = $position;
+                }
+            }
+        }
+
+        $allLocis = Loci::with('alleles')->get();
+        return view('admin.genetics.create_edit_image', [
+            'image' => $genomeImage,
+            'locis' => $allLocis,
+            'loci_list' => $lociList,
+        ]);
+    }
+
     public function postCreateEditImage(Request $request, GeneticsService $service, $id = null) {
         $id ? $request->validate(GenomeImage::$updateRules) : $request->validate(GenomeImage::$createRules);
         $data = $request->only([
@@ -261,7 +307,7 @@ class GeneticsController extends Controller
             flash('Image updated successfully.')->success();
         } else if (!$id && $image = $service->createGenomeImage($data, Auth::user())) {
             flash('Image created successfully.')->success();
-            return redirect()->back();
+            return redirect()->to('admin/genetics/images/edit/'.$image->id);
         } else {
             foreach($service->errors()->getMessages()['error'] as $error) flash($error)->error();
         }

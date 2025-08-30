@@ -24,7 +24,7 @@ class CreateGenomeImages extends Migration
         Schema::create('image_locis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('image_id')->constrained('genome_images');
-            $table->foreignId('allele_id')->constrained('loci_alleles')->nullable()->default(null);
+            $table->foreignId('allele_id')->nullable()->default(null)->constrained('loci_alleles');
             $table->foreignId('loci_id')->constrained('locis');
             $table->integer('position');
         });

@@ -98,8 +98,10 @@ Route::group(['prefix' => 'genetics', 'namespace' => 'Data', 'middleware' => ['p
         Route::get('images', 'GeneticsController@getImageIndex');
         Route::get('images/create', 'GeneticsController@getCreateImage');
         Route::get('images/check-alleles', 'GeneticsController@getCreateImageAlleles');
+        Route::get('images/edit/{id}', 'GeneticsController@getEditImage');
 
         Route::post('images/create', 'GeneticsController@postCreateEditImage');
+        Route::post('images/edit/{id}', 'GeneticsController@postCreateEditImage');
     });
 
     # ROLLERS & SUCH

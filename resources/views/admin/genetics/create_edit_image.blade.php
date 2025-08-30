@@ -3,7 +3,7 @@
 @section('admin-title') Genome Images @endsection
 
 @section('admin-content')
-{!! breadcrumbs(['Admin Panel' => 'admin', 'Genome Images' => 'admin/genetics/images']) !!}
+{!! breadcrumbs(['Admin Panel' => 'admin', 'Genome Images' => 'admin/genetics/images', '$image->id' ? 'Edit Image' : 'Create Image' => 'admin/genetics/images/edit']) !!}
 
 <h1>
     {{ $image->id ? 'Edit' : 'Create' }} Genome Image
@@ -23,11 +23,22 @@
     {!! Form::text('name', $image->name, ['class' => 'form-control']) !!}
 </div>
 
-<div class="form-group">
-    {!! Form::label('Image File') !!} {!! add_help('Bla bla bla.') !!}
-    <div>{!! Form::file('image') !!}</div>
-    <div class="text-muted">Recommended size: None (Choose a standard size for all genome images)</div>
+@if ($image->id)
+<div class="row mb-3">
+    <div class="col">
+        <img class="w-100" src="{{ $image->imageUrl.'/'.$image->imageFileName }}" alt="The current genome image file" />
+    </div>
+    <div class="col-12 col-md-6">
+    @endif
+        <div class="form-group">
+            {!! Form::label('Image File') !!} {!! add_help('Bla bla bla.') !!}
+            <div>{!! Form::file('image') !!}</div>
+            <div class="text-muted">Recommended size: None (Choose a standard size for all genome images)</div>
+        </div>
+    @if ($image->id)
+    </div>
 </div>
+@endif
 
 <div class="form-group">
     {!! Form::label('Description (Optional)') !!}
@@ -52,22 +63,31 @@
         </tr>
     </thead>
     <tbody id="alleleTableBody">
-        @for($i = 0; $i < count($loci_list); $i++)
-            <tr id="allele-row-{{ $i }}">
-                <td>{!! Form::select('loci_ids[]', $locis->pluck('name', 'id'), $loci_list->id, ['class' => 'form-control loci-select', 'placeholder' => 'Select Loci']) !!}</td>
+        @php
+            $rows = 0;
+        @endphp
+        @foreach($loci_list as $loci)
+            <tr id="allele-row-{{ $rows }}">
+                <td>{!! Form::select('loci_ids[]', $locis->pluck('name', 'id'), $loci['id'], ['class' => 'form-control loci-select', 'placeholder' => 'Select Loci']) !!}</td>
                 <td class="allele-row-select">
-                    @if ($loci->type == "gene")
+                    @if ($loci['type'] == "gene")
                         <div class="input-group">
-                            {!! Form::select('allele_left_ids[]', $loci->alleles->pluck('name', 'id'), $alleles_left[i]->id, ['class' => 'form-control allele-select input-group-prepend', 'placeholder' => 'Select Allele']) !!}
-                            {!! Form::select('allele_right_ids[]', [null, 'N/A'] + $loci->alleles->pluck('name', 'id'), $alleles_right[i]->id, ['class' => 'form-control allele-select input-group-append', 'placeholder' => 'Select Allele']) !!}
+                            {!! Form::select('allele_left_ids[]', $loci['alleles'], $loci['left'], ['class' => 'form-control allele-select input-group-prepend', 'placeholder' => 'Select Allele']) !!}
+                            {!! Form::select('allele_right_ids[]', $loci['alleles'], $loci['right'], ['class' => 'form-control allele-select input-group-append', 'placeholder' => 'Select Allele']) !!}
                         </div>
+                        {!! Form::hidden('loci_positions[]') !!}
                     @else
-                        {!! Form::number('loci_positions[]'), 1, [ 'class' => 'form-control', 'min' => 0, 'max' => $loci->length ] !!}
+                        {!! Form::number('loci_positions[]', $loci['position'], [ 'class' => 'form-control', 'min' => 0, 'max' => $loci['length'] ]) !!}
+                        {!! Form::hidden('allele_left_ids[]') !!}
+                        {!! Form::hidden('allele_right_ids[]') !!}
                     @endif
                     </td>
                 <td class="text-right"><a href="#" class="btn btn-danger remove-allele-button">Remove</a></td>
             </tr>
-        @endfor
+            @php
+                $rows++;
+            @endphp
+        @endforeach
     </tbody>
 </table>
 
