@@ -9,6 +9,7 @@ use App\Models\Character\CharacterBreedingLog;
 use App\Models\Character\CharacterGenome;
 use App\Models\Feature\Feature;
 use App\Models\Feature\FeatureCategory;
+use App\Models\Genetics\GenomeImage;
 use App\Models\Genetics\Loci;
 use App\Models\Genetics\LociAllele;
 use App\Models\Rarity;
@@ -219,6 +220,33 @@ class GeneticsController extends Controller
             foreach($service->errors()->getMessages()['error'] as $error) flash($error)->error();
         }
         return redirect()->to('admin/genetics/edit/'.$loci->id);
+    }
+
+    public function getImageIndex(Request $request) {
+        $query = GenomeImage::query();
+        return view('admin.genetics.images', [
+            'images' => $query->paginate(20),
+        ]);
+    }
+
+    public function getCreateImage(Request $request) {
+        $locis = Loci::with('alleles')->get();
+        return view('admin.genetics.create_edit_image', [
+            'image' => new GenomeImage(),
+            'locis' => $locis,
+            'alleles' => [],
+        ]);
+    }
+
+    public function getCreateImageAlleles(Request $request) {
+        $loci = $request->input('loci');
+
+        return view('admin.genetics._create_edit_image_allele', [
+            'allele_list' => LociAllele::where('loci_id', '=', $loci)->pluck('name', 'id')->toArray(),
+            'allele_ids' => [],
+            'locis' => Loci::get(),
+            'loci_id' => $loci,
+        ]);
     }
 
     /**

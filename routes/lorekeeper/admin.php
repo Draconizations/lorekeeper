@@ -94,6 +94,12 @@ Route::group(['prefix' => 'genetics', 'namespace' => 'Data', 'middleware' => ['p
 
     });
 
+    Route::middleware(['power:edit_data'])->group(function() {
+        Route::get('images', 'GeneticsController@getImageIndex');
+        Route::get('images/create', 'GeneticsController@getCreateImage');
+        Route::get('images/check-alleles', 'GeneticsController@getCreateImageAlleles');
+    });
+
     # ROLLERS & SUCH
     Route::middleware(['power:manage_characters'])->group(function() {
 
