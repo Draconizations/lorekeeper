@@ -5,12 +5,9 @@ namespace App\Models\Genetics;
 use Config;
 use DB;
 use App\Models\Model;
-use App\Models\Feature\FeatureCategory;
-use App\Models\Species\Species;
-use App\Models\Rarity;
 use Illuminate\Validation\Rule;
 
-class LociAllele extends Model
+class GenomeImage extends Model
 {
     /**
      * The attributes that are mass assignable.
@@ -18,8 +15,7 @@ class LociAllele extends Model
      * @var array
      */
     protected $fillable = [
-        'loci_id', 'is_dominant', 'sort', 'name', 'modifier',
-        'summary', 'is_visible',
+        'sort', 'name', 'description', 'parsed_description', 'is_visible',
     ];
 
     /**
@@ -27,7 +23,7 @@ class LociAllele extends Model
      *
      * @var string
      */
-    protected $table = 'loci_alleles';
+    protected $table = 'genome_images';
 
     /**********************************************************************************************
 
@@ -36,19 +32,11 @@ class LociAllele extends Model
     **********************************************************************************************/
 
     /**
-     * Get the gene group of this loci.
+     * Get the allele combinations this image belongs to.
      */
-    public function loci()
+    public function alleles()
     {
-        return $this->belongsTo('App\Models\Genetics\Loci');
-    }
-
-    /**
-     * Get the images this loci is associated with
-     */
-    public function images()
-    {
-        return $this->belongsToMany(GenomeImage::class, 'image_alleles', 'allele_id', 'image_id')->withPivot('position');
+        return $this->belongsToMany(LociAllele::class, 'image_alleles', 'image_id', 'allele_id')->withPivot('position');
     }
 
     /**********************************************************************************************
@@ -63,9 +51,9 @@ class LociAllele extends Model
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeSortByDominance($query)
+    public function scopeSort($query)
     {
-        return $query->orderBy('is_dominant')->orderBy('sort');
+        return $query->orderBy('sort');
     }
 
     /**
@@ -86,24 +74,42 @@ class LociAllele extends Model
     **********************************************************************************************/
 
     /**
-     * Gets the Allele display name for HTML contexts (with superscripted modifier).
+     * Gets the file directory containing the model's image.
      *
      * @return string
      */
-    public function getDisplayNameAttribute()
+    public function getImageDirectoryAttribute()
     {
-        $name = $this->name . "<sup>" . $this->modifier . "</sup>";
-        return $this->is_dominant ? $name : strtolower($name);
+        return 'images/data/genomes';
     }
 
     /**
-     * Gets the Allele display name for non-HTML contexts (such as dropdown menus).
+     * Gets the file name of the model's image.
      *
      * @return string
      */
-    public function getFullNameAttribute()
+    public function getImageFileNameAttribute()
     {
-        $name = $this->name . (($this->modifier && $this->modifier != "") ? "(" . $this->modifier . ")" : "");
-        return $this->is_dominant ? $name : strtolower($name);
+        return $this->id . '-image.png';
+    }
+
+    /**
+     * Gets the path to the file directory containing the model's image.
+     *
+     * @return string
+     */
+    public function getImagePathAttribute()
+    {
+        return public_path($this->imageDirectory);
+    }
+    
+    /**
+     * Gets the URL of the model's image.
+     *
+     * @return string
+     */
+    public function getImageUrlAttribute()
+    {
+        return asset($this->imageDirectory . '/' . $this->shopImageFileName);
     }
 }
