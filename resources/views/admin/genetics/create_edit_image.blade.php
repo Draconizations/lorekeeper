@@ -53,24 +53,27 @@
     <thead>
         <tr>
             <th width="35%">Loci</th>
-            <th width="35%">Allele</th>
-            <th width="20%">Position</th>
+            <th width="55%">Value</th>
             <th width="10%"></th>
         </tr>
     </thead>
     <tbody id="alleleTableBody">
-        @if($alleles)
-            @for($i = 0; $i < count($alleles); $i++)
-                <tr id="allele-row-{{ $i }}">
-                    <td>{!! Form::select('loci_ids[]', $locis->pluck('name', 'id'), $loci->id, ['class' => 'form-control loci-select', 'placeholder' => 'Select Loci']) !!}</td>
-                    <td class="allele-row-select">
-                        {!! Form::select('allele_ids[]', $loci->alleles->pluck('name', 'id'), $alleles[i]->id, ['class' => 'form-control allele-select', 'placeholder' => 'Select Allele']) !!}
+        @for($i = 0; $i < count($loci_list); $i++)
+            <tr id="allele-row-{{ $i }}">
+                <td>{!! Form::select('loci_ids[]', $locis->pluck('name', 'id'), $loci_list->id, ['class' => 'form-control loci-select', 'placeholder' => 'Select Loci']) !!}</td>
+                <td class="allele-row-select">
+                    @if ($loci->type == "gene")
+                        <div class="input-group">
+                            {!! Form::select('allele_left_ids[]', $loci->alleles->pluck('name', 'id'), $alleles_left[i]->id, ['class' => 'form-control allele-select input-group-prepend', 'placeholder' => 'Select Allele']) !!}
+                            {!! Form::select('allele_right_ids[]', [null, 'N/A'] + $loci->alleles->pluck('name', 'id'), $alleles_right[i]->id, ['class' => 'form-control allele-select input-group-append', 'placeholder' => 'Select Allele']) !!}
+                        </div>
+                    @else
+                        {!! Form::number('loci_positions[]'), 1, [ 'class' => 'form-control', 'min' => 0, 'max' => $loci->length ] !!}
+                    @endif
                     </td>
-                    <td>{!! Form::number('allele_positions[]', 1, ['class' => 'form-control']) !!}</td>
-                    <td class="text-right"><a href="#" class="btn btn-danger remove-allele-button">Remove</a></td>
-                </tr>
-            @endfor
-        @endif
+                <td class="text-right"><a href="#" class="btn btn-danger remove-allele-button">Remove</a></td>
+            </tr>
+        @endfor
     </tbody>
 </table>
 
@@ -84,7 +87,7 @@
     <table class="table table-sm">
         <tbody id="alleleRow">
             <tr class="allele-row">
-                @include('admin.genetics._create_edit_image_allele', ['allele_list' => [], 'loci_id' => null])
+                @include('admin.genetics._create_edit_image_allele', ['allele_list' => [], 'loci' => new \App\Models\Genetics\Loci])
             </tr>
         </tbody>
     </table>
@@ -95,7 +98,7 @@
 @parent
 
 <script>
-var rowCount = {{ count($alleles) }};
+var rowCount = {{ count($loci_list) }};
 
 $( document ).ready(function() {    
     var $alleleTable  = $('#alleleTableBody');
@@ -118,7 +121,6 @@ $( document ).ready(function() {
 });
 
 function attachRefreshListener(node, id) {
-    console.log(node)
     node.on('change', function(e) {
         e.preventDefault();
         refreshAlleles(id, e.target.value);
@@ -140,6 +142,9 @@ function refreshAlleles(row, loci) {
     }).done(function(res) {
         $(row).html(res);
         $(row + " .selectize").selectize();
+
+        attachRefreshListener($(row + " .loci-select"), row);
+        attachRemoveListener($(row + " .remove-allele-button"));
     }).fail(function(jqXHR, textStatus, errorThrown) {
         alert("AJAX call failed: " + textStatus + ", " + errorThrown);
     });

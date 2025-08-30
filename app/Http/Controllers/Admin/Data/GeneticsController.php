@@ -234,7 +234,7 @@ class GeneticsController extends Controller
         return view('admin.genetics.create_edit_image', [
             'image' => new GenomeImage(),
             'locis' => $locis,
-            'alleles' => [],
+            'loci_list' => [],
         ]);
     }
 
@@ -243,9 +243,10 @@ class GeneticsController extends Controller
 
         return view('admin.genetics._create_edit_image_allele', [
             'allele_list' => LociAllele::where('loci_id', '=', $loci)->pluck('name', 'id')->toArray(),
-            'allele_ids' => [],
+            'allele_right_ids' => [],
+            'allele_left_ids' => [],
             'locis' => Loci::get(),
-            'loci_id' => $loci,
+            'loci' => Loci::find($loci),
         ]);
     }
 
