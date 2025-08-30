@@ -3,7 +3,7 @@
 @section('admin-title') Genome Images @endsection
 
 @section('admin-content')
-{!! breadcrumbs(['Admin Panel' => 'admin', 'Genetics' => 'admin/genetics/images']) !!}
+{!! breadcrumbs(['Admin Panel' => 'admin', 'Genome Images' => 'admin/genetics/images']) !!}
 
 <h1>
     {{ $image->id ? 'Edit' : 'Create' }} Genome Image
@@ -14,7 +14,7 @@
 
 <hr />
 
-{!! Form::open(['url' => $image->id ? 'admin/genetics/images/edit/'.$image->id : 'admin/genetics/images/create']) !!}
+{!! Form::open(['url' => $image->id ? 'admin/genetics/images/edit/'.$image->id : 'admin/genetics/images/create', 'files' => true]) !!}
 
 <h3>Basic Information</h3>
 
@@ -27,12 +27,6 @@
     {!! Form::label('Image File') !!} {!! add_help('Bla bla bla.') !!}
     <div>{!! Form::file('image') !!}</div>
     <div class="text-muted">Recommended size: None (Choose a standard size for all genome images)</div>
-    @if($image->id)
-        <div class="form-check">
-            {!! Form::checkbox('remove_image', 1, false, ['class' => 'form-check-input']) !!}
-            {!! Form::label('remove_image', 'Remove current image', ['class' => 'form-check-label']) !!}
-        </div>
-    @endif
 </div>
 
 <div class="form-group">

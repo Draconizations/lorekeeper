@@ -10,6 +10,7 @@ use Config;
 
 use App\Models\Feature\FeatureCategory;
 use App\Models\Feature\Feature;
+use App\Models\Genetics\GenomeImage;
 use App\Models\Genetics\Loci;
 use App\Models\Genetics\LociAllele;
 use App\Models\Species\Species;
@@ -228,6 +229,83 @@ class GeneticsService extends Service
         } catch(\Exception $e) {
             $this->setError('error', $e->getMessage());
         }
+        return $this->rollbackReturn(false);
+    }
+    
+    public function createGenomeImage($data, $user) {
+        DB::beginTransaction();
+
+        try {
+            if(isset($data['description']) && $data['description']) $data['parsed_description'] = parse($data['description']);
+            $data['is_visible'] = isset($data['is_visible']);
+
+            $image = null;
+            if (isset($data['image']) && $data['image']) {
+                $image = $data['image'];
+                unset($data['image']);
+            } else {
+                throw new \Exception('Image upload is required.');
+            }
+
+            $usedLoci = [];
+
+            if (isset($data['loci_ids']) && $data['loci_ids']) {
+                for ($i = 0; $i < count($data['loci_ids']); $i++) {
+                    // check if this loci hasn't been set for this image already
+                    if (isset($usedLoci[$data['loci_ids'][$i]])) {
+                        throw new \Exception('Each loci is only allowed to be used once.');
+                    } else {
+                        $usedLoci[$data['loci_ids'][$i]] = true;
+                    }
+
+                    // check if the loci even exists
+                    $loci = Loci::find($data['loci_ids'][$i]);
+                    if (!$loci->id) throw new \Exception('Selected loci is invalid.');
+
+                    // check if the position doesn't exceed the length
+                    if ($data['loci_positions'][$i]) {
+                        if ($data['loci_positions'] > $loci->length) {
+                            throw new \Exception('Loci value may not exceed length.');
+                        }
+                    } else {
+                        $left = LociAllele::find($data['allele_left_ids'][$i]);
+                        $right = LociAllele::find($data['allele_right_ids'][$i]);
+
+                        if (
+                            !$left || $left->loci_id != $loci->id
+                            || ($right && $right->loci_id != $loci->id)
+                        ) {
+                            throw new \Exception('Selected allele is invalid or does not match loci.');
+                        }
+                    }
+                }
+            } else {
+                throw new \Exception('At least one loci association is required.');
+            }
+
+            $genomeImage = GenomeImage::create($data);
+
+            for ($i = 0; $i < count($data['loci_ids']); $i++) {
+                $loci = $data['loci_ids'][$i];
+                if ($data['loci_positions'][$i]) {
+                    $genomeImage->locis()->attach($loci, [ 'position' => $data['loci_positions'][$i]]);
+                }
+                if ($data['allele_left_ids'][$i]) {
+                    $genomeImage->locis()->attach($loci, [ 'position' => 0, 'allele_id' => $data['allele_left_ids'][$i]]);
+                }
+                if ($data['allele_right_ids'][$i]) {
+                    $genomeImage->locis()->attach($loci, [ 'position' => 1, 'allele_id' => $data['allele_right_ids'][$i]]);
+                }
+            }
+            
+            if ($image) $this->handleImage($image, $genomeImage->imagePath, $genomeImage->imageFileName);
+
+            return $this->commitReturn($genomeImage);
+        } catch (\Exception $e) {
+            $this->setError('error', $e->getMessage());
+        }
+
+
         return $this->rollbackReturn(false);
     }
 }

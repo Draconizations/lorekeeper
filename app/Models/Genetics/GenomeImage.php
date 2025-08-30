@@ -25,6 +25,28 @@ class GenomeImage extends Model
      */
     protected $table = 'genome_images';
 
+    /**
+     * Validation rules for creation.
+     *
+     * @var array
+     */
+    public static $createRules = [
+        'name' => 'required|between:3,64',
+        'description' => 'nullable',
+        'image' => 'required|mimes:png',
+    ];
+    
+    /**
+     * Validation rules for updating.
+     *
+     * @var array
+     */
+    public static $updateRules = [
+        'name' => 'required|between:3,64',
+        'description' => 'nullable',
+        'image' => 'required|mimes:png',
+    ];
+
     /**********************************************************************************************
 
         RELATIONS
@@ -34,7 +56,7 @@ class GenomeImage extends Model
     /**
      * Get the allele combinations this image belongs to.
      */
-    public function alleles()
+    public function locis()
     {
         return $this->belongsToMany(Loci::class, 'image_locis', 'image_id', 'loci_id')->withPivot('position', 'allele_id');
     }
