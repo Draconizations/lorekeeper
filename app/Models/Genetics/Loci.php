@@ -138,6 +138,14 @@ class Loci extends Model
     }
 
     /**
+     * Get the images this loci is associated with
+     */
+    public function images()
+    {
+        return $this->belongsToMany(GenomeImage::class, 'image_locis', 'loci_id', 'image_id')->withPivot('position', 'allele_id');
+    }
+
+    /**
      * Gets the default options for this loci.
      *
      * @return array

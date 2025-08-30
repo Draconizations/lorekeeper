@@ -36,7 +36,7 @@ class GenomeImage extends Model
      */
     public function alleles()
     {
-        return $this->belongsToMany(LociAllele::class, 'image_alleles', 'image_id', 'allele_id')->withPivot('position');
+        return $this->belongsToMany(Loci::class, 'image_locis', 'image_id', 'loci_id')->withPivot('position', 'allele_id');
     }
 
     /**********************************************************************************************

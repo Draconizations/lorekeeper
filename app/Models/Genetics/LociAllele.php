@@ -43,14 +43,6 @@ class LociAllele extends Model
         return $this->belongsTo('App\Models\Genetics\Loci');
     }
 
-    /**
-     * Get the images this loci is associated with
-     */
-    public function images()
-    {
-        return $this->belongsToMany(GenomeImage::class, 'image_alleles', 'allele_id', 'image_id')->withPivot('position');
-    }
-
     /**********************************************************************************************
 
         SCOPES

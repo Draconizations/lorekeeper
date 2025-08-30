@@ -21,10 +21,11 @@ class CreateGenomeImages extends Migration
             $table->boolean('is_visible')->default(false);
         });
 
-        Schema::create('image_alleles', function (Blueprint $table) {
+        Schema::create('image_locis', function (Blueprint $table) {
             $table->id();
             $table->foreignId('image_id')->constrained('genome_images');
-            $table->foreignId('allele_id')->constrained('loci_alleles');
+            $table->foreignId('allele_id')->constrained('loci_alleles')->nullable()->default(null);
+            $table->foreignId('loci_id')->constrained('locis');
             $table->integer('position');
         });
     }
@@ -36,7 +37,7 @@ class CreateGenomeImages extends Migration
      */
     public function down()
     {
+        Schema::dropIfExists('image_locis');
         Schema::dropIfExists('genome_images');
-        Schema::dropIfExists('image_alleles');
     }
 }

@@ -1,4 +1,4 @@
-<td>{!! Form::select('loci_id[]', $locis->pluck('name', 'id'), $loci_id, ['class' => 'form-control loci-select', 'placeholder' => 'Select Loci']) !!}</td>
+<td>{!! Form::select('loci_ids[]', $locis->pluck('name', 'id'), $loci_id, ['class' => 'form-control loci-select', 'placeholder' => 'Select Loci']) !!}</td>
 <td class="allele-row-select">
     @if ($loci_id)
         {!! Form::select('allele_ids[]', $allele_list, $allele_ids, ['class' => 'form-control allele-select', 'placeholder' => 'Select Allele']) !!}
