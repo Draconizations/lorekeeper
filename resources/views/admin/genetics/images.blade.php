@@ -22,12 +22,28 @@
     {!! $images->render() !!}
     <div class="row ml-md-2">
         <div class="d-flex row flex-wrap col-12 pb-1 px-0 ubt-bottom">
-            <div class="col-5 font-weight-bold">Name</div>
+            <div class="col-5 font-weight-bold">
+                <div class="row">
+                    <div class="col-1"></div>
+                    <div class="col-11">Name</div>
+                </div>
+            </div>
             <div class="col-7 font-weight-bold">Genome</div>
         </div>
         @foreach($images as $image)
             <div class="d-flex row flex-wrap col-12 mt-1 pt-1 px-0 ubt-top">
-                <div class="col-5">{{ $image->name }}</div>
+                <div class="col-5">
+                    <div class="row">
+                        <div class="col-1">
+                            @if (!$image->is_visible)
+                            <i class="fas fa-eye-slash"></i>
+                            @endif
+                        </div>
+                        <div class="col-11">
+                        {{ $image->name }}
+                        </div>
+                    </div>
+                </div>
                 <div class="col-5">{!! $image->genomeDisplay !!}</div>
                 <div class="col-2">
                     <a href="{{ url('admin/genetics/images/edit/'.$image->id) }}" class="btn btn-primary py-0 px-1 w-100">Edit</a>

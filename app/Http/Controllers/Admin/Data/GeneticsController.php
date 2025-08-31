@@ -121,6 +121,7 @@ class GeneticsController extends Controller
         return view('admin.genetics.create_edit_loci', [
             'category' => $category,
             'defaultOptions' => $category->getDefaultOptions(),
+            'images' => GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC')->get(),
         ]);
     }
 

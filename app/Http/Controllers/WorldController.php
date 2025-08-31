@@ -110,7 +110,7 @@ class WorldController extends Controller
 
     public function getGenomeImages(Request $request, $id) {
         $loci = Loci::find($id);
-        if (!$loci || !(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) abort(404);
+        if (!$loci || (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics')) && !$loci->is_visible )) abort(404);
 
         $images = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
         if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
