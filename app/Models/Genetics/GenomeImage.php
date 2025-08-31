@@ -61,11 +61,54 @@ class GenomeImage extends Model
         return $this->belongsToMany(Loci::class, 'image_locis', 'image_id', 'loci_id')->withPivot('position', 'allele_id');
     }
 
+    public function getLoci() {
+        $loci = Loci::with('images')->whereHas('images', function ($query) {
+                $query->where('image_id', '=', $this->id);
+            })->orderBy('sort', 'DESC')->get();
+        return $loci;
+    }
+
+    public function getLociArray() {
+        $locis = $this->getLoci();
+
+        $list = [];
+
+        foreach($locis as $loci) {
+            $id = $loci->id;
+            if (!array_key_exists($id, $list)) {
+                $list[$id] = [
+                    'id' => $id,
+                    'type' => $loci->type,
+                    'alleles' => $loci->alleles->pluck('name', 'id'),
+                    'length' => $loci->length,
+                    'name'  => $loci->name,
+                    'left' => '',
+                    'right' => '',
+                    'position' => '',
+                ];
+            }
+
+            foreach($loci->images as $image) {         
+                $allele = $image->pivot->allele_id;
+                $position = $image->pivot->position;
+                
+                if ($allele && $position == 0) {
+                    $list[$id]['left'] = $allele;
+                } else if ($allele && $position == 1) {
+                    $list[$id]['right'] = $allele;
+                } else {
+                    $list[$id]['position'] = $position;
+                }
+            }
+        }
+        return $list;
+    }
+
     /**********************************************************************************************
 
         SCOPES
 
-**********************************************************************************************/
+    **********************************************************************************************/
 
     /**
      * Scope a query to sort by sort order.
@@ -133,5 +176,32 @@ class GenomeImage extends Model
     public function getImageUrlAttribute()
     {
         return asset($this->imageDirectory . '/' . $this->shopImageFileName);
+    }
+
+    public function getGenomeDisplayAttribute() {
+        $locis = $this->getLociArray();
+
+        $display = '';
+        foreach($locis as $loci) {
+            $divOpen = '<div class="float-left py-1 text-monospace mr-2" data-toggle="tooltip" style="word-wrap: break-word;" title="'. $loci['name'] .'"">';
+            $gene = '';
+
+            if ($loci['type'] == 'gene') {
+                $left = $loci['left'] ? LociAllele::find($loci['left'])->displayName : '-';
+                $right = $loci['right'] ? LociAllele::find($loci['right'])->displayName : '-';
+                $gene = $left.$right;
+            } elseif ($loci['type'] == 'gradient') {
+                $gene = str_pad($gene, $loci['position'], '+');
+                $gene = str_pad($gene, $loci['length'], '-');
+            } elseif ($loci['type'] == 'numeric') {
+                $gene = $loci['position'];
+            }
+
+            $divClose = '</div>';
+            $display = $display.$divOpen.$gene.$divClose;
+        }
+
+        $display = $display."<div class='clearfix'></div>";
+        return $display;
     }
 }

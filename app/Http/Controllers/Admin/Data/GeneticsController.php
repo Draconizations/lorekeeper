@@ -230,7 +230,7 @@ class GeneticsController extends Controller
     }
 
     public function getCreateImage(Request $request) {
-        $locis = Loci::with('alleles')->get();
+        $locis = Loci::with('alleles')->orderBy('sort', 'DESC')->get();
         return view('admin.genetics.create_edit_image', [
             'image' => new GenomeImage(),
             'locis' => $locis,
@@ -254,41 +254,9 @@ class GeneticsController extends Controller
         $genomeImage = GenomeImage::find($id);
         if (!$genomeImage) abort(404);
 
-        $list = Loci::with('images')->whereHas('images', function ($query) use ($genomeImage) {
-                $query->where('image_id', '=', $genomeImage->id);
-            })->orderBy('sort', 'DESC')->get();
-        
-        $lociList = [];
+        $lociList = $genomeImage->getLociArray();
 
-        foreach($list as $loci) {
-            $id = $loci->id;
-            if (!array_key_exists($id, $lociList)) {
-                $lociList[$id] = [
-                    'id' => $id,
-                    'type' => $loci->type,
-                    'alleles' => $loci->alleles->pluck('name', 'id'),
-                    'length' => $loci->length,
-                    'left' => '',
-                    'right' => '',
-                    'position' => '',
-                ];
-            }
-
-            foreach($loci->images as $image) {         
-                $allele = $image->pivot->allele_id;
-                $position = $image->pivot->position;
-                
-                if ($allele && $position == 0) {
-                    $lociList[$id]['left'] = $allele;
-                } else if ($allele && $position == 1) {
-                    $lociList[$id]['right'] = $allele;
-                } else {
-                    $lociList[$id]['position'] = $position;
-                }
-            }
-        }
-
-        $allLocis = Loci::with('alleles')->get();
+        $allLocis = Loci::with('alleles')->orderBy('sort', 'DESC')->get();
         return view('admin.genetics.create_edit_image', [
             'image' => $genomeImage,
             'locis' => $allLocis,

@@ -28,7 +28,7 @@
         @foreach($images as $image)
             <div class="d-flex row flex-wrap col-12 mt-1 pt-1 px-0 ubt-top">
                 <div class="col-5">{{ $image->name }}</div>
-                <div class="col-5">string tba</div>
+                <div class="col-5">{!! $image->genomeDisplay !!}</div>
                 <div class="col-2">
                     <a href="{{ url('admin/genetics/images/edit/'.$image->id) }}" class="btn btn-primary py-0 px-1 w-100">Edit</a>
                 </div>
