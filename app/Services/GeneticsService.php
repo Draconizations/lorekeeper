@@ -245,7 +245,7 @@ class GeneticsService extends Service
 
             $this->attachImageLoci($genomeImage, $data);
             
-            if (isset($image) && $image) $this->handleImage($image, $genomeImage->imagePath, $genomeImage->imageFileName);
+            if (array_key_exists('image', $data) && $data['image']) $this->handleImage($data['image'], $genomeImage->imagePath, $genomeImage->imageFileName);
 
             return $this->commitReturn($genomeImage);
         } catch (\Exception $e) {
@@ -268,7 +268,7 @@ class GeneticsService extends Service
 
             $this->attachImageLoci($genomeImage, $data);
             
-            if (isset($image) && $image) $this->handleImage($image, $genomeImage->imagePath, $genomeImage->imageFileName);
+            if (array_key_exists('image', $data) && $data['image']) $this->handleImage($data['image'], $genomeImage->imagePath, $genomeImage->imageFileName);
 
             return $this->commitReturn($genomeImage);
         } catch (\Exception $e) {
@@ -282,12 +282,6 @@ class GeneticsService extends Service
     private function fillImageData($data) {
         if(isset($data['description']) && $data['description']) $data['parsed_description'] = parse($data['description']);
         $data['is_visible'] = isset($data['is_visible']);
-
-        $image = null;
-        if (isset($data['image']) && $data['image']) {
-            $image = $data['image'];
-            unset($data['image']);
-        }
 
         $usedLoci = [];
 
