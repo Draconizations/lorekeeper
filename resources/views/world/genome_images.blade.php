@@ -3,7 +3,7 @@
 @section('title') {{ $loci->name }} Images @endsection
 
 @section('content')
-{!! breadcrumbs(['World' => 'world', 'Genetics' => 'world/genetics', 'Genome Images' => 'world/genetics/images']) !!}
+{!! breadcrumbs(['World' => 'world', 'Genetics' => 'world/genetics', 'Genome Images' => 'world/genetics/gallery']) !!}
 <h1>Genome Images</h1>
 <hr/>
 <div class="row world-entry">

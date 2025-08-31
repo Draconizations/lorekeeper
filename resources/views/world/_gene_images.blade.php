@@ -28,7 +28,7 @@
                 <div style="flex: 1;" class="card-title h4 m-0" data-toggle="collapse" href="#images-{{ $loci->id }}">
                     Show Genome Images {!! add_help('This page only shows images solely associated with this loci. To see possible combinations, click the button on the right.') !!}
                 </div>
-                <a class="btn btn-primary mt-2 mt-sm-0 ml-sm-2" href="{{ url('world/genetics/'.$loci->id) }}">Show all images</a>
+                <a class="btn btn-primary mt-2 mt-sm-0 ml-sm-2" href="{{ url('world/genetics/gallery/'.$loci->id) }}">Show all images</a>
             </div>
         </div>
         <div class="collapse" id="images-{{ $loci->id }}">
