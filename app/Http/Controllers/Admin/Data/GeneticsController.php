@@ -262,6 +262,7 @@ class GeneticsController extends Controller
             'image' => $genomeImage,
             'locis' => $allLocis,
             'loci_list' => $lociList,
+            'images' => GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC')->get(),
         ]);
     }
 

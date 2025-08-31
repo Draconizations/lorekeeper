@@ -58,7 +58,7 @@ class GenomeImage extends Model
      */
     public function locis()
     {
-        return $this->belongsToMany(Loci::class, 'image_locis', 'image_id', 'loci_id')->withPivot('position', 'allele_id');
+        return $this->belongsToMany(Loci::class, 'image_locis', 'image_id', 'loci_id')->withPivot('position', 'allele_id')->orderBy('locis.sort', 'DESC');
     }
 
     public function getLoci() {

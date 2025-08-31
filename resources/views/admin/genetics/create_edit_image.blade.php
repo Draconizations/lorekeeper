@@ -107,6 +107,21 @@
 
 {!! Form::close() !!}
 
+@if ($image->id)
+    @php
+        $group = $images->filter(function ($img) use ($image) {
+            return $img->genomeString == $image->genomeString;
+        })->values();
+    @endphp
+
+    <h3 class="mt-3">Preview</h3>
+    <div class="card mb-3">
+        <div class="card-body">
+            @include('world._gene_image_group', [ 'group' => $group ])
+        </div>
+    </div>
+@endif
+
 <div id="alleleRowData" class="hide">
     <table class="table table-sm">
         <tbody id="alleleRow">

@@ -35,7 +35,7 @@
         </div>
     </div>
 </div>
-@include('world._gene_image', ['images' => $images, 'loci' => $loci, 'exclusive' => false, 'collapse' => false ])
+@include('world._gene_images', ['images' => $images, 'loci' => $loci, 'exclusive' => false, 'collapse' => false ])
 
 
 @endsection
