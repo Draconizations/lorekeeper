@@ -3,7 +3,30 @@
 @section('title') {{ $loci->name }} Images @endsection
 
 @section('content')
-{!! breadcrumbs(['World' => 'world', 'Genetics' => 'world/genetics', 'Genome Images' => 'world/genetics/gallery']) !!}
+@php
+    $all_images = $images->filter(function ($image) use ($loci) {
+        $relevant = count($image->locis->filter(function ($lc) use ($loci) {
+            return $lc->id == $loci->id;
+        })) > 0;
+
+        return $relevant;
+    })->sortBy(function ($img) {
+       return $img->locis->count();
+    })->sortBy('genomeString')->values();
+
+    $image_groups = [];
+    
+    foreach ($all_images as $image) {
+        $str = $image->genomeString;
+        if (!array_key_exists($str, $image_groups)) {
+            $image_groups[$str] = [ ];
+        }
+
+        array_push($image_groups[$str], $image);
+    }
+@endphp
+
+{!! breadcrumbs(['World' => 'world', 'Genetics' => 'world/genetics', 'Gallery' => 'world/genetics/gallery']) !!}
 <h1>Genome Images</h1>
 <hr/>
 <div class="row world-entry">
@@ -35,7 +58,12 @@
         </div>
     </div>
 </div>
-@include('world._gene_images', ['images' => $images, 'loci' => $loci, 'exclusive' => false, 'collapse' => false ])
-
+@if (count($all_images))
+    @foreach ($image_groups as $group)
+        @include('world._gene_image_group', ['group' => $group])
+    @endforeach
+@else
+    <p>No images found.</p>
+@endif
 
 @endsection

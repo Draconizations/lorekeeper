@@ -102,6 +102,7 @@ Route::group(['prefix' => 'world'], function() {
     Route::get('currencies', 'WorldController@getCurrencies');
     Route::get('rarities', 'WorldController@getRarities');
     Route::get('genetics', 'WorldController@getGenetics');
+    Route::get('genetics/gallery', 'WorldController@getGeneImageGallery');
     Route::get('genetics/gallery/{id}', 'WorldController@getGenomeImages');
     Route::get('species', 'WorldController@getSpecieses');
     Route::get('subtypes', 'WorldController@getSubtypes');

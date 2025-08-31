@@ -78,6 +78,7 @@ class GenomeImage extends Model
             if (!array_key_exists($id, $list)) {
                 $list[$id] = [
                     'id' => $id,
+                    'sort' => $loci->sort,
                     'type' => $loci->type,
                     'alleles' => $loci->alleles->pluck('name', 'id'),
                     'length' => $loci->length,
@@ -185,16 +186,24 @@ class GenomeImage extends Model
 
         $str = '';
         foreach($locis as $loci) {
-            $gene = '';
+            $gene = (1000 - $loci['sort']).'.';
 
             if ($loci['type'] == 'gene') {
-                $left = $loci['left'] ? LociAllele::find($loci['left'])->name : '-';
-                $right = $loci['right'] ? LociAllele::find($loci['right'])->name : '-';
-                $gene = $left.$right;
+                $left = '-';
+                if ($loci['left']) {
+                    $l = LociAllele::find($loci['left']);
+                    $left = (1000 - $l->sort).'.'.$l->name;
+                }
+                $right = '-';
+                if ($loci['right']) {
+                    $r = LociAllele::find($loci['right']);
+                    $right = (1000 - $r->sort).'.'.$r->name;
+                }
+                $gene .= $left.$right;
             } elseif ($loci['type'] == 'gradient') {
-                $gene = $loci['position'];
+                $gene .= $loci['position'];
             } elseif ($loci['type'] == 'numeric') {
-                $gene = $loci['position'];
+                $gene .= $loci['position'];
             }
 
             $separator = '_';

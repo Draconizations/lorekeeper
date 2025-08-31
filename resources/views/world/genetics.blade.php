@@ -7,6 +7,11 @@
 <h1>Genetics</h1>
 
 <div>
+    <a href="{{ url('world/genetics/gallery') }}" class="btn btn-secondary mb-2">View Full Image Gallery</a>
+    <p><i class="fa fa-exclamation-triangle"></i> The above page can be <b>very image heavy</b> and cannot be filtered in any way.</p>
+</div>
+
+<div>
     {!! Form::open(['method' => 'GET', 'class' => 'form-inline justify-content-end']) !!}
         <div class="form-group mr-3 mb-3">
             {!! Form::text('name', Request::get('name'), ['class' => 'form-control']) !!}

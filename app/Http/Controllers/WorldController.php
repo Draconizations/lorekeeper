@@ -108,6 +108,15 @@ class WorldController extends Controller
         ]);
     }
 
+    public function getGeneImageGallery(Request $request) {
+        $images = GenomeImage::with('locis')->withCount('locis');
+        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
+
+        return view('world.gene_gallery', [
+            'images' => $images->get(),
+        ]);
+    }
+
     public function getGenomeImages(Request $request, $id) {
         $loci = Loci::find($id);
         if (!$loci || (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics')) && !$loci->is_visible )) abort(404);
@@ -115,7 +124,7 @@ class WorldController extends Controller
         $images = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
         if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
 
-        return view('world.genome_images', [
+        return view('world.gene_images', [
             'loci' => $loci,
             'images' => $images->get(),
         ]);

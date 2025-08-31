@@ -1,3 +1,34 @@
+@php
+    $all_images = $images->filter(function ($image) use ($loci) {
+        $relevant = count($image->locis->filter(function ($lc) use ($loci) {
+            return $lc->id == $loci->id;
+        })) > 0;
+
+        return $relevant;
+    })->sortBy(function ($img) {
+       return $img->locis->count();
+    })->sortBy('genomeString')->values();
+
+    $exclusive_images = $all_images->filter(function ($image) use ($loci) {
+        $include = count($image->locis->filter(function ($lc) use ($loci) {
+            return $lc->id !== $loci->id;
+        })) <= 0;
+
+        return $include;
+    })->values();
+
+    $image_groups = [];
+    
+    foreach ($exclusive_images as $image) {
+        $str = $image->genomeString;
+        if (!array_key_exists($str, $image_groups)) {
+            $image_groups[$str] = [ ];
+        }
+
+        array_push($image_groups[$str], $image);
+    }
+@endphp
+
 <div class="row world-entry">
     <div class="col-12">
         <h3 class="mb-0">
@@ -5,6 +36,9 @@
                 <i class="fas fa-eye-slash"></i>
             @endif
             {!! $loci->displayName !!}
+            @if (count($all_images))
+                <a class="btn btn-primary float-right" href="{{ url('world/genetics/gallery/'.$loci->id) }}">Show all images</a>
+            @endif
         </h3>
         @if ($loci->type == "gene")
             <strong>Type</strong>: Standard<br>
@@ -25,6 +59,19 @@
         <div class="world-entry-text mt-2">
             {!! $loci->description !!}
         </div>
-        @include('world._gene_images', ['images' => $images, 'loci' => $loci, 'exclusive' => true, 'collapse' => true])
+        @if (count($exclusive_images))
+            <div class="card">
+                <div class=card-header align-items-center border-0">
+                    <div class="card-title h4 m-0" data-toggle="collapse" href="#images-{{ $loci->id }}">
+                        Show Base Gene Images {!! add_help('This page only shows images solely associated with this gene. To see all possible combinations with this gene, click the button at the top.') !!}
+                    </div>
+                </div>
+            </div>
+            <div class="collapse" id="images-{{ $loci->id }}">
+            @foreach ($image_groups as $group)
+                @include('world._gene_image_group', ['group' => $group])
+            @endforeach
+            </div>
+        @endif
     </div>
 </div>
