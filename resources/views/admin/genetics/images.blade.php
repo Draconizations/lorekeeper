@@ -12,7 +12,8 @@
     </div>
 </h1>
 
-<p>Bla bla bla.</p>
+<p>Create and edit a genome's image examples here.</p>
+<p>It is possible to create multiple images for the same genome. The image that was <strong>first created</strong> will have its title (or name) used as the title for image card.</p>
 
 <hr />
 

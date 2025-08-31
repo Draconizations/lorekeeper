@@ -268,7 +268,7 @@ class GeneticsController extends Controller
     public function postCreateEditImage(Request $request, GeneticsService $service, $id = null) {
         $id ? $request->validate(GenomeImage::$updateRules) : $request->validate(GenomeImage::$createRules);
         $data = $request->only([
-            'name', 'image', 'description', 'is_visible',
+            'name', 'title', 'image', 'description', 'is_visible',
             'loci_ids', 'allele_right_ids', 'allele_left_ids', 'loci_positions'
         ]);
 

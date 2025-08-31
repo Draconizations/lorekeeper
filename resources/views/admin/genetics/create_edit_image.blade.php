@@ -18,9 +18,19 @@
 
 <h3>Basic Information</h3>
 
-<div class="form-group">
-    {!! Form::label('Image Label') !!}
-    {!! Form::text('name', $image->name, ['class' => 'form-control']) !!}
+<div class="row mb-3">
+    <div class="col-12 col-md-6">
+        <div class="form-group">
+            {!! Form::label('Image Name') !!} {!! add_help('Used  as the title for both the genome\'s image card, and the tab button (if there are tabs).') !!}
+            {!! Form::text('name', $image->name, ['class' => 'form-control']) !!}
+        </div>
+    </div>
+    <div class="col-12 col-md-6">
+        <div class="form-group">
+            {!! Form::label('Image Title (Optional)') !!} {!! add_help('If set, is used as the title for the genome\'s image card instead of the image name. Not used for the tab button.') !!}
+            {!! Form::text('title', $image->title, ['class' => 'form-control']) !!}
+        </div>
+    </div>
 </div>
 
 @if ($image->id)

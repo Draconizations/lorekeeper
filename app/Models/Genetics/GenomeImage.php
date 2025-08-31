@@ -15,7 +15,7 @@ class GenomeImage extends Model
      * @var array
      */
     protected $fillable = [
-        'sort', 'name', 'description', 'parsed_description', 'is_visible',
+        'sort', 'name','title', 'description', 'parsed_description', 'is_visible',
     ];
 
     /**
@@ -31,7 +31,7 @@ class GenomeImage extends Model
      * @var array
      */
     public static $createRules = [
-        'name' => 'required|between:3,64',
+        'name' => 'required|between:3,100',
         'description' => 'nullable',
         'image' => 'required|mimes:png',
     ];
@@ -42,7 +42,7 @@ class GenomeImage extends Model
      * @var array
      */
     public static $updateRules = [
-        'name' => 'required|between:3,64',
+        'name' => 'required|between:3,100',
         'description' => 'nullable',
         'image' => 'mimes:png',
     ];

@@ -37,7 +37,7 @@
     @foreach ($image_groups as $group)
         <div class="card my-2">
             <div class="card-header">
-                <h5 class="my-0">{{ $group[0]->name }}</h5>
+                <h5 class="my-0">{{ $group[0]->title ? $group[0]->title : $group[0]->name }}</h5>
             </div>
             <div class="card-body">
                 <strong>Genome</strong>: {!! $group[0]->genomeDisplay  !!}
