@@ -98,10 +98,26 @@ class WorldController extends Controller
         if(isset($data['variant']) && $data['variant'] != 'none') $query->where('type', $data['variant']);
         if(isset($data['name']) && $data['name'] != '') $query->where('name', 'LIKE', '%'.$data['name'].'%');
 
+        $images = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
+
         return view('world.genetics', [
             'genetics' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-            'images' => GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC')->get(),
+            'images' => $images->get(),
             'options' => [0 => "Any Type", 'gene' => "Standard", 'gradient' => "Gradient", 'numeric' => "Numeric"],
+        ]);
+    }
+
+    public function getGenomeImages(Request $request, $id) {
+        $loci = Loci::find($id);
+        if (!$loci || !(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) abort(404);
+
+        $images = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
+
+        return view('world.genome_images', [
+            'loci' => $loci,
+            'images' => $images->get(),
         ]);
     }
 

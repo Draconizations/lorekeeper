@@ -3,9 +3,9 @@
         $relevant = count($image->locis->filter(function ($lc) use ($loci) {
             return $lc->id == $loci->id;
         })) > 0;
-        $include = count($image->locis->filter(function ($lc) use ($loci, $exclusive) {
+        $include = $exclusive ? count($image->locis->filter(function ($lc) use ($loci, $exclusive) {
             return $lc->id !== $loci->id;
-        })) > 0 == !$exclusive;
+        })) > 0 == !$exclusive : true;
 
         return $relevant && $include;
     })->values();
@@ -24,11 +24,11 @@
 @if (count($loci_images))
     @if ($collapse)
         <div class="card">
-            <div class="card-header card-title h4 border-0" data-toggle="collapse" href="#images-{{ $loci->id }}">
-                <div class="d-flex align-items-center">
-                    <span>Show Genome Images {!! add_help('This page only shows images solely associated with this loci. To see possible combinations, click the button on the right.') !!}</span>
-                    <a class="btn btn-primary ml-auto" href="{{ url('world/genetics/images?loci='.$loci->id) }}">Show all images</a>
+            <div class="d-flex flex-column flex-sm-row card-header align-items-center border-0">
+                <div style="flex: 1;" class="card-title h4 m-0" data-toggle="collapse" href="#images-{{ $loci->id }}">
+                    Show Genome Images {!! add_help('This page only shows images solely associated with this loci. To see possible combinations, click the button on the right.') !!}
                 </div>
+                <a class="btn btn-primary mt-2 mt-sm-0 ml-sm-2" href="{{ url('world/genetics/'.$loci->id) }}">Show all images</a>
             </div>
         </div>
         <div class="collapse" id="images-{{ $loci->id }}">
