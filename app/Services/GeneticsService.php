@@ -194,6 +194,7 @@ class GeneticsService extends Service
 
             if($characterGenes) $characterGenes->delete();
             if ($loci->type == "gene") $loci->alleles()->delete();
+            $loci->images()->detach();
             $loci->delete();
 
             return $this->commitReturn(true);
@@ -223,6 +224,12 @@ class GeneticsService extends Service
             if($target->id == $replacement->id) throw new \Exception("Can't replace an allele with itself.");
 
             CharacterGenomeGene::where('loci_allele_id', $target->id)->update(['loci_allele_id' => $replacement->id]);
+            
+            $images = $loci->images()->wherePivot('allele_id', '=', $target->id)->get();
+            foreach ($images as $image) {
+                $image->updateExistingPivot($image->id, ['allele_id' => $replacement->id]);
+            }
+
             $target->delete();
 
             return $this->commitReturn(true);
@@ -256,6 +263,9 @@ class GeneticsService extends Service
         return $this->rollbackReturn(false);
     }
 
+    /**
+     * Updates a genome image
+     */
     public function updateGenomeImage($genomeImage, $data) {
         DB::beginTransaction();
 
@@ -279,6 +289,30 @@ class GeneticsService extends Service
         return $this->rollbackReturn(false);
     }
 
+    /**
+     * Deletes a genome image.
+     *
+     * @param  array  $data
+     * @return bool
+     */
+    public function deleteGenomeImage($image)
+    {
+        DB::beginTransaction();
+        try {
+            $this->deleteImage($image->imagePath, $image->imageFileName);
+            $image->locis()->detach();
+            $image->delete();
+
+            return $this->commitReturn(true);
+        } catch(\Exception $e) {
+            $this->setError('error', $e->getMessage());
+        }
+        return $this->rollbackReturn(false);
+    }
+
+    /**
+     * Fill image data for creation/updates
+     */
     private function fillImageData($data) {
         if(isset($data['description']) && $data['description']) $data['parsed_description'] = parse($data['description']);
         $data['is_visible'] = isset($data['is_visible']);
@@ -322,6 +356,9 @@ class GeneticsService extends Service
         return $data;
     }
 
+    /**
+     * Add all relevant image genes
+     */
     private function attachImageLoci($genomeImage, $data) {
         for ($i = 0; $i < count($data['loci_ids']); $i++) {
             $loci = $data['loci_ids'][$i];

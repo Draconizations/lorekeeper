@@ -34,7 +34,7 @@
 @if ($image->id)
 <div class="row mb-3">
     <div class="col">
-        <img class="w-100" src="{{ $image->imageUrl.'/'.$image->imageFileName }}" alt="The current genome image file" />
+        <img src="{{ $image->imageUrl.'/'.$image->imageFileName }}" alt="The current genome image file" />
     </div>
     <div class="col-12 col-md-6">
     @endif
@@ -147,7 +147,12 @@
 <script>
 var rowCount = {{ count($loci_list) }};
 
-$( document ).ready(function() {    
+$( document ).ready(function() {
+    $('.delete-image-button').on('click', function(e) {
+        e.preventDefault();
+        loadModal("{{ url('admin/genetics/images/delete') }}/{{ $image->id }}", 'Delete Image');
+    });
+    
     var $alleleTable  = $('#alleleTableBody');
     var $alleleRow = $('#alleleRow .allele-row');
     $('#allelteTableBody .selectize').selectize();

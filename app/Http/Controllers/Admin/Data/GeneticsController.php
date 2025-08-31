@@ -300,6 +300,35 @@ class GeneticsController extends Controller
     }
 
     /**
+     * Show the image deletion modal
+     */
+    public function getDeleteImage($id)
+    {
+        $image = GenomeImage::find($id);
+        return view('admin.genetics._delete_image', [
+            'image' => $image,
+        ]);
+    }
+
+    /**
+     * Deletes a genome Image.
+     *
+     * @param  \Illuminate\Http\Request     $request
+     * @param  App\Services\FeatureService  $service
+     * @param  int|null                     $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postDeleteImage(Request $request, GeneticsService $service, $id)
+    {
+        if($id && $service->deleteGenomeImage(GenomeImage::find($id))) {
+            flash('Image deleted successfully.')->success();
+        } else {
+            foreach($service->errors()->getMessages()['error'] as $error) flash($error)->error();
+        }
+        return redirect()->to('admin/genetics/images');
+    }
+
+    /**
      * Shows a breeding log page.
      *
      * @param  \Illuminate\Http\Request  $request

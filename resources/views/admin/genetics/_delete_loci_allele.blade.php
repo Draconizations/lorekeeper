@@ -1,7 +1,7 @@
 @if($loci)
     {!! Form::open(['url' => 'admin/genetics/delete-allele/'.$loci->id]) !!}
 
-    <p>Here, you can delete an allele from <strong>{{ $loci->name }}</strong> and replace all instances of it in character genomes with another allele from the same gene group.</p>
+    <p>Here, you can delete an allele from <strong>{{ $loci->name }}</strong> and replace all instances of it in gene images and character genomes with another allele from the same gene group.</p>
 
     <div class="row no-gutters">
         <div class="col-6 pr-2 form-group">

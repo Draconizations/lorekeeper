@@ -2,6 +2,7 @@
     {!! Form::open(['url' => 'admin/genetics/delete/'.$loci->id]) !!}
 
     <p>You are about to delete the gene group <strong>{{ $loci->name }}</strong>. This is not reversible. All alleles in this gene group will be deleted. <strong>All characters with those genes will lose them.</strong></p>
+    <p>Any images associated with this gene group will remain, but the association will be forever lost.</p>
     <p>Are you sure you want to delete <strong>{{ $loci->name }}</strong>?</p>
 
     <div class="text-right">
