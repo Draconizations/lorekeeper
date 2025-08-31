@@ -88,7 +88,9 @@ class GenomeImage extends Model
                 ];
             }
 
-            foreach($loci->images as $image) {         
+            foreach($loci->images as $image) {
+                if ($image->pivot->image_id !== $this->id) continue;
+
                 $allele = $image->pivot->allele_id;
                 $position = $image->pivot->position;
                 
@@ -178,12 +180,35 @@ class GenomeImage extends Model
         return asset($this->imageDirectory . '/' . $this->shopImageFileName);
     }
 
+    public function getGenomeStringAttribute() {
+        $locis = $this->getLociArray();
+
+        $str = '';
+        foreach($locis as $loci) {
+            $gene = '';
+
+            if ($loci['type'] == 'gene') {
+                $left = $loci['left'] ? LociAllele::find($loci['left'])->name : '-';
+                $right = $loci['right'] ? LociAllele::find($loci['right'])->name : '-';
+                $gene = $left.$right;
+            } elseif ($loci['type'] == 'gradient') {
+                $gene = $loci['position'];
+            } elseif ($loci['type'] == 'numeric') {
+                $gene = $loci['position'];
+            }
+
+            $separator = '_';
+            $str = $str.$separator.$gene;
+        }
+        return trim($str);
+    }
+
     public function getGenomeDisplayAttribute() {
         $locis = $this->getLociArray();
 
         $display = '';
         foreach($locis as $loci) {
-            $divOpen = '<div class="float-left py-1 text-monospace mr-2" data-toggle="tooltip" style="word-wrap: break-word;" title="'. $loci['name'] .'"">';
+            $divOpen = '<div class="d-inline py-1 text-monospace mr-2" data-toggle="tooltip" style="word-wrap: break-word;" title="'. $loci['name'] .'"">';
             $gene = '';
 
             if ($loci['type'] == 'gene') {

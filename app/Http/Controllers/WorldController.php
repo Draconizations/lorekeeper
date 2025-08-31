@@ -16,6 +16,7 @@ use App\Models\Item\Item;
 use App\Models\Feature\FeatureCategory;
 use App\Models\Feature\Feature;
 use App\Models\Character\CharacterCategory;
+use App\Models\Genetics\GenomeImage;
 use App\Models\Genetics\Loci;
 use App\Models\Prompt\PromptCategory;
 use App\Models\Prompt\Prompt;
@@ -99,6 +100,7 @@ class WorldController extends Controller
 
         return view('world.genetics', [
             'genetics' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'images' => GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC')->get(),
             'options' => [0 => "Any Type", 'gene' => "Standard", 'gradient' => "Gradient", 'numeric' => "Numeric"],
         ]);
     }

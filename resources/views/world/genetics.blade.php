@@ -24,7 +24,7 @@
 @foreach($genetics as $loci)
     <div class="card mb-3">
         <div class="card-body">
-        @include('world._gene_entry', ['loci' => $loci])
+        @include('world._gene_entry', ['loci' => $loci, 'images' => $images])
         </div>
     </div>
 @endforeach

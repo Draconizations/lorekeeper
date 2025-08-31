@@ -25,5 +25,6 @@
         <div class="world-entry-text mt-2">
             {!! $loci->description !!}
         </div>
+        @include('world._gene_image', ['images' => $images, 'loci' => $loci, 'exclusive' => true, 'collapse' => true])
     </div>
 </div>
