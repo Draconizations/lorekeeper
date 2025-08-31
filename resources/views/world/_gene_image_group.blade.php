@@ -9,13 +9,20 @@
                 <div class="world-entry-text mt-2">
                     {!! $group[0]->description !!}
                 </div>
+                <hr />
                 <img class="genome-image rounded" src="{{ $group[0]->imageUrl.'/'.$group[0]->imageFileName }}" />
             @else
                 <ul class="nav nav-tabs">
+                    @php
+                        $i = 0;
+                    @endphp
                     @foreach ($group as $image)
                         <li class="nav-item">
-                            <a class="nav-link" id="imageTab-{{ $image->id }}" data-toggle="tab" href="#image-{{ $image->id }}" role="tab">{{ $image->name }}</a>
+                            <a class="nav-link {{ $i == 0 ? 'active' : '' }}" id="imageTab-{{ $image->id }}" data-toggle="tab" href="#image-{{ $image->id }}" role="tab">{{ $image->name }}</a>
                         </li>
+                        @php
+                            $i++
+                        @endphp
                     @endforeach
                 </ul>
                 <div class="tab-content">

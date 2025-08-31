@@ -10,8 +10,6 @@
     <a href="#" class="btn btn-danger float-right delete-image-button">Delete Genome Image</a>
 </h1>
 
-<p>Bla bla bla.</p>
-
 <hr />
 
 {!! Form::open(['url' => $image->id ? 'admin/genetics/images/edit/'.$image->id : 'admin/genetics/images/create', 'files' => true]) !!}
@@ -58,6 +56,16 @@
 <div class="form-group">
     {!! Form::checkbox('is_visible', 1, $image->id ? $image->is_visible : 1, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
     {!! Form::label('is_visible', 'Is Visible', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If turned off, the image will not be visible in the gallery to regular users.') !!}
+</div>
+
+<h3>Associated Genomes</h3>
+<p>
+    You can add each loci that this image demonstrates here.<br/>
+    It is possible to create multiple images for the same genome. The image that was <strong>first created</strong> will have its title (or name) used as the title for image card.
+</p>
+
+<div class="alert alert-warning">
+    You can only enter each loci <b>once</b>. For regular genes, only the left allele is required.
 </div>
 
 <div class="text-right mb-3">

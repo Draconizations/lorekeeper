@@ -212,8 +212,8 @@ class GenomeImage extends Model
             $gene = '';
 
             if ($loci['type'] == 'gene') {
-                $left = $loci['left'] ? LociAllele::find($loci['left'])->displayName : '-';
-                $right = $loci['right'] ? LociAllele::find($loci['right'])->displayName : '-';
+                $left = $loci['left'] ? LociAllele::find($loci['left'])->displayName : '_';
+                $right = $loci['right'] ? LociAllele::find($loci['right'])->displayName : '_';
                 $gene = $left.$right;
             } elseif ($loci['type'] == 'gradient') {
                 $gene = str_pad($gene, $loci['position'], '+');
