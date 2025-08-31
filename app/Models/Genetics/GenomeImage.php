@@ -61,6 +61,9 @@ class GenomeImage extends Model
         return $this->belongsToMany(Loci::class, 'image_locis', 'image_id', 'loci_id')->withPivot('position', 'allele_id')->orderBy('locis.sort', 'DESC');
     }
 
+    /**
+     * Gets all loci that are associated with this image.
+     */
     public function getLoci() {
         $loci = Loci::with('images')->whereHas('images', function ($query) {
                 $query->where('image_id', '=', $this->id);
@@ -68,6 +71,9 @@ class GenomeImage extends Model
         return $loci;
     }
 
+    /**
+     * Gets all the loci associated with this image and parses them into an array.
+     */
     public function getLociArray() {
         $locis = $this->getLoci();
 
@@ -181,6 +187,10 @@ class GenomeImage extends Model
         return asset($this->imageDirectory . '/' . $this->shopImageFileName);
     }
 
+    /**
+     * Gets the sortable genome string for this image.
+     * Only used internally, never displayed.
+     */
     public function getGenomeStringAttribute() {
         $locis = $this->getLociArray();
 
@@ -212,6 +222,9 @@ class GenomeImage extends Model
         return trim($str);
     }
 
+    /**
+     * Get the genome of this image and display it pretty.
+     */
     public function getGenomeDisplayAttribute() {
         $locis = $this->getLociArray();
 

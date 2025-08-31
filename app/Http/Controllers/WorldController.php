@@ -108,6 +108,9 @@ class WorldController extends Controller
         ]);
     }
 
+    /**
+     * Shows the gene image gallery page.
+     */
     public function getGeneImageGallery(Request $request) {
         $images = GenomeImage::with('locis')->withCount('locis');
         if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
@@ -117,6 +120,9 @@ class WorldController extends Controller
         ]);
     }
 
+    /**
+     * Show a gene image gallery for just one gene.
+     */
     public function getGenomeImages(Request $request, $id) {
         $loci = Loci::find($id);
         if (!$loci || (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics')) && !$loci->is_visible )) abort(404);

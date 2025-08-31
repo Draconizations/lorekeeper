@@ -223,6 +223,9 @@ class GeneticsController extends Controller
         return redirect()->to('admin/genetics/edit/'.$loci->id);
     }
 
+    /**
+     * Shows all genome images in an index.
+     */
     public function getImageIndex(Request $request) {
         $query = GenomeImage::query();
         return view('admin.genetics.images', [
@@ -230,6 +233,9 @@ class GeneticsController extends Controller
         ]);
     }
 
+    /**
+     * Show the image creation page.
+     */
     public function getCreateImage(Request $request) {
         $locis = Loci::with('alleles')->orderBy('sort', 'DESC')->get();
         return view('admin.genetics.create_edit_image', [
@@ -239,6 +245,9 @@ class GeneticsController extends Controller
         ]);
     }
 
+    /**
+     * Show a single selection row for selecting genome values.
+     */
     public function getCreateImageAlleles(Request $request) {
         $loci = $request->input('loci');
 
@@ -251,6 +260,9 @@ class GeneticsController extends Controller
         ]);
     }
 
+    /**
+     * Show the image edit page.
+     */
     public function getEditImage(Request $request, $id) {
         $genomeImage = GenomeImage::find($id);
         if (!$genomeImage) abort(404);
@@ -266,6 +278,9 @@ class GeneticsController extends Controller
         ]);
     }
 
+    /**
+     * Creates or updates an image.
+     */
     public function postCreateEditImage(Request $request, GeneticsService $service, $id = null) {
         $id ? $request->validate(GenomeImage::$updateRules) : $request->validate(GenomeImage::$createRules);
         $data = $request->only([
