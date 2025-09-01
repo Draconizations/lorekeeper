@@ -1,13 +1,13 @@
 @extends('admin.layout')
 
-@section('admin-title') Genome Images @endsection
+@section('admin-title') Gene Images @endsection
 
 @section('admin-content')
-{!! breadcrumbs(['Admin Panel' => 'admin', 'Genome Images' => 'admin/genetics/images', '$image->id' ? 'Edit Image' : 'Create Image' => 'admin/genetics/images/edit']) !!}
+{!! breadcrumbs(['Admin Panel' => 'admin', 'Gene Images' => 'admin/genetics/images', '$image->id' ? 'Edit Image' : 'Create Image' => 'admin/genetics/images/edit']) !!}
 
 <h1>
-    {{ $image->id ? 'Edit' : 'Create' }} Genome Image
-    <a href="#" class="btn btn-danger float-right delete-image-button">Delete Genome Image</a>
+    {{ $image->id ? 'Edit' : 'Create' }} Gene Image
+    <a href="#" class="btn btn-danger float-right delete-image-button">Delete Gene Image</a>
 </h1>
 
 <hr />
@@ -34,14 +34,14 @@
 @if ($image->id)
 <div class="row mb-3">
     <div class="col">
-        <img src="{{ $image->imageUrl.'/'.$image->imageFileName }}" alt="The current genome image file" />
+        <img src="{{ $image->imageUrl.'/'.$image->imageFileName }}" alt="The current gene image file" />
     </div>
     <div class="col-12 col-md-6">
     @endif
         <div class="form-group">
-            {!! Form::label('Image File') !!} {!! add_help('Bla bla bla.') !!}
+            {!! Form::label('Image File') !!} {!! add_help('The actual image. This should be representative of the genome below.') !!}
             <div>{!! Form::file('image') !!}</div>
-            <div class="text-muted">Recommended size: None (Choose a standard size for all genome images)</div>
+            <div class="text-muted">Recommended size: None (Choose a standard size for all gene images)</div>
         </div>
     @if ($image->id)
     </div>

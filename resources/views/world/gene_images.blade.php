@@ -27,7 +27,7 @@
 @endphp
 
 {!! breadcrumbs(['World' => 'world', 'Genetics' => 'world/genetics', 'Gallery' => 'world/genetics/gallery']) !!}
-<h1>Genome Images</h1>
+<h1>Gene Images</h1>
 <hr/>
 <div class="row world-entry">
     <div class="col-12">

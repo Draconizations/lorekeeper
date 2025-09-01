@@ -6,10 +6,10 @@
         <strong>Genome</strong>: {!! $group[0]->genomeDisplay  !!}
         <div class="mt-2">
             @if (count($group) <= 1)
+                <hr />
                 <div class="world-entry-text mt-2">
                     {!! $group[0]->description !!}
                 </div>
-                <hr />
                 <img class="genome-image rounded" src="{{ $group[0]->imageUrl.'/'.$group[0]->imageFileName }}" />
             @else
                 <ul class="nav nav-tabs">

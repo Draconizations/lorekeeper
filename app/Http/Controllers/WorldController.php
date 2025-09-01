@@ -110,6 +110,7 @@ class WorldController extends Controller
 
     /**
      * Shows the gene image gallery page.
+     * @todo allow the user to filter by genome
      */
     public function getGeneImageGallery(Request $request) {
         $images = GenomeImage::with('locis')->withCount('locis');

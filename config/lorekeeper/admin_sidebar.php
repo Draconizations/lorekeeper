@@ -133,7 +133,7 @@ return [
                 'url' => 'admin/genetics/genes'
             ],
             [
-                'name' => 'Genome Images',
+                'name' => 'Gene Images',
                 'url' => 'admin/genetics/images'
             ],
             [

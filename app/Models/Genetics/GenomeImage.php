@@ -230,7 +230,7 @@ class GenomeImage extends Model
 
         $display = '';
         foreach($locis as $loci) {
-            $divOpen = '<div class="d-inline py-1 text-monospace mr-2" data-toggle="tooltip" style="word-wrap: break-word;" title="'. $loci['name'] .'"">';
+            $divOpen = '<a class="d-inline py-1 text-monospace mr-2" data-toggle="tooltip" style="word-wrap: break-word;" title="'. $loci['name'] .'" href="'.url('world/genetics/gallery/'.$loci['id']).'">';
             $gene = '';
 
             if ($loci['type'] == 'gene') {
@@ -244,7 +244,7 @@ class GenomeImage extends Model
                 $gene = $loci['position'];
             }
 
-            $divClose = '</div>';
+            $divClose = '</a>';
             $display = $display.$divOpen.$gene.$divClose;
         }
 

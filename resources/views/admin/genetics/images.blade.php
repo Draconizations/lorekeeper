@@ -1,12 +1,12 @@
 @extends('admin.layout')
 
-@section('admin-title') Genome Images @endsection
+@section('admin-title') Gene Images @endsection
 
 @section('admin-content')
 {!! breadcrumbs(['Admin Panel' => 'admin', 'Genetics' => 'admin/genetics']) !!}
 
 <h1>
-    Genome Images
+    Gene Images
     <div class="float-right">
         <a class="btn btn-primary" href="{{ url('admin/genetics/images/create') }}"><i class="fas fa-plus mr-1"></i> New Image</a>
     </div>
@@ -16,7 +16,7 @@
 <hr />
 
 @if(!count($images))
-    <p class="text-center">No genome images found. Click the button above to create one.</p>
+    <p class="text-center">No gene images found. Click the button above to create one.</p>
 @else
     {!! $images->render() !!}
     <div class="row ml-md-2">
