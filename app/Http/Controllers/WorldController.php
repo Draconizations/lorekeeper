@@ -103,7 +103,7 @@ class WorldController extends Controller
 
         return view('world.genetics', [
             'genetics' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-            'images' => $images->get(),
+            'images' => $images,
             'options' => [0 => "Any Type", 'gene' => "Standard", 'gradient' => "Gradient", 'numeric' => "Numeric"],
         ]);
     }
@@ -113,11 +113,14 @@ class WorldController extends Controller
      * @todo allow the user to filter by genome
      */
     public function getGeneImageGallery(Request $request) {
-        $images = GenomeImage::with('locis')->withCount('locis');
-        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
+        $query = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $query->visible();
+        $images = $query->get();
+
+        $image_groups = GenomeImage::collectImages($images)->paginate(10);;
 
         return view('world.gene_gallery', [
-            'images' => $images->get(),
+            'images' => $image_groups,
         ]);
     }
 
@@ -128,13 +131,19 @@ class WorldController extends Controller
         $loci = Loci::find($id);
         if (!$loci || (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics')) && !$loci->is_visible )) abort(404);
 
-        $images = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
-        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
+        $query = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        $query->whereHas('locis', function ($query) use ($loci) {
+            $query->where('locis.id', '=', $loci->id);
+        });
+        if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $query->visible();
+        $images = $query->get();
+
+        $image_groups = GenomeImage::collectImages($images)->paginate(10);;
 
         return view('world.gene_images', [
             'loci' => $loci,
-            'images' => $images->get(),
-        ]);
+            'images' => $image_groups
+            ]);
     }
 
     /**

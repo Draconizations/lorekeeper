@@ -251,4 +251,23 @@ class GenomeImage extends Model
         $display = $display."<div class='clearfix'></div>";
         return $display;
     }
+
+    
+    /**
+     * Sorts a collection of images into groups and paginates them.
+     */
+    public static function collectImages($images) {
+        $image_groups = [];
+
+        foreach ($images as $image) {
+            $str = $image->genomeString;
+            if (!isset($image_groups[$str])) {
+                $image_groups[$str] = [ ];
+            }
+
+            array_push($image_groups[$str], $image);
+        }
+
+        return collect($image_groups);
+    }
 }

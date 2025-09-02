@@ -1,32 +1,18 @@
 @php
-    $all_images = $images->filter(function ($image) use ($loci) {
-        $relevant = count($image->locis->filter(function ($lc) use ($loci) {
-            return $lc->id == $loci->id;
-        })) > 0;
+    $query = clone $images;
+    $query->whereHas('locis', function ($query) use ($loci) {
+        $query->where('locis.id', '=', $loci->id);
+    });
 
-        return $relevant;
-    })->sortBy(function ($img) {
-       return $img->locis->count();
-    })->sortBy('genomeString')->values();
+    $all_query = clone $images;
 
-    $exclusive_images = $all_images->filter(function ($image) use ($loci) {
-        $include = count($image->locis->filter(function ($lc) use ($loci) {
-            return $lc->id !== $loci->id;
-        })) <= 0;
+    $some_images = $query->whereDoesntHave('locis', function ($query) use ($loci) {
+        $query->where('locis.id', '!=', $loci->id);
+    })->get();
+    $all_images = $all_query->get();
 
-        return $include;
-    })->values();
 
-    $image_groups = [];
-    
-    foreach ($exclusive_images as $image) {
-        $str = $image->genomeString;
-        if (!array_key_exists($str, $image_groups)) {
-            $image_groups[$str] = [ ];
-        }
-
-        array_push($image_groups[$str], $image);
-    }
+    $image_groups = \App\Models\Genetics\GenomeImage::collectImages($some_images);
 @endphp
 
 <div class="row world-entry">
@@ -59,7 +45,7 @@
         <div class="world-entry-text mt-2">
             {!! $loci->description !!}
         </div>
-        @if (count($exclusive_images))
+        @if (count($image_groups))
             <div class="card">
                 <div class=card-header align-items-center border-0">
                     <div class="card-title h4 m-0" data-toggle="collapse" href="#images-{{ $loci->id }}">

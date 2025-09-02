@@ -3,29 +3,6 @@
 @section('title') {{ $loci->name }} Images @endsection
 
 @section('content')
-@php
-    $all_images = $images->filter(function ($image) use ($loci) {
-        $relevant = count($image->locis->filter(function ($lc) use ($loci) {
-            return $lc->id == $loci->id;
-        })) > 0;
-
-        return $relevant;
-    })->sortBy(function ($img) {
-       return $img->locis->count();
-    })->sortBy('genomeString')->values();
-
-    $image_groups = [];
-    
-    foreach ($all_images as $image) {
-        $str = $image->genomeString;
-        if (!array_key_exists($str, $image_groups)) {
-            $image_groups[$str] = [ ];
-        }
-
-        array_push($image_groups[$str], $image);
-    }
-@endphp
-
 {!! breadcrumbs(['World' => 'world', 'Genetics' => 'world/genetics', 'Gallery' => 'world/genetics/gallery']) !!}
 <h1>Gene Images</h1>
 <hr/>
@@ -58,10 +35,12 @@
         </div>
     </div>
 </div>
-@if (count($all_images))
-    @foreach ($image_groups as $group)
+@if (count($images))
+    {!! $images->render() !!}
+    @foreach ($images->getCollection()->toArray() as $group)
         @include('world._gene_image_group', ['group' => $group])
     @endforeach
+    {!! $images->render() !!}
 @else
     <p>No images found.</p>
 @endif
