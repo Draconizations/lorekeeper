@@ -10,6 +10,15 @@ return [
         'version' => '1.2.0',
     ],
 
+    'genetic_data_images' => [
+        'key' => 'genetic_data_images',
+        'wiki_key' => 'Genetic_Data_Images',
+        'creators' => json_encode([
+            'Fulmn' => 'https://github.com/Draconizations/'
+        ]),
+        'version' => '1.0.0',
+    ],
+
     // FORMAT EXAMPLE.
     //
     // 'extension_tracker' => [
