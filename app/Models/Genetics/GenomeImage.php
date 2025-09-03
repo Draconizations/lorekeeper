@@ -257,7 +257,7 @@ class GenomeImage extends Model
      * Sorts a collection of images into groups and paginates them.
      */
     public static function collectImages($images) {
-        $images = $images->sortBy('genomeString')->values();
+        $images = $images->sortBy('genomeString')->sortBy('id')->values();
         $image_groups = [];
 
         foreach ($images as $image) {
