@@ -16,7 +16,7 @@ return [
         'creators' => json_encode([
             'Fulmn' => 'https://github.com/Draconizations/'
         ]),
-        'version' => '1.1.0',
+        'version' => '1.1.1',
     ],
 
     // FORMAT EXAMPLE.
