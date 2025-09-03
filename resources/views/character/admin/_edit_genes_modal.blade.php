@@ -1,4 +1,4 @@
-{!! Form::open(['url' => 'admin/'.($isMyo ? "myo" : "character").'/'. ($isMyo ? $character->id : $character->slug).'/genome/'.($genome->id ? $genome->id : 'create')]) !!}
+{!! Form::open(['url' => 'admin/'.($isMyo ? "myo" : "character").($isMyo ? $character->id : $character->slug).'/genome/'.($genome->id ? $genome->id : 'create')]) !!}
     <div class="form-group">
         @php $dVis = Settings::get('genome_default_visibility'); @endphp
         {!! Form::label('genome_visibility', 'Visibility') !!}

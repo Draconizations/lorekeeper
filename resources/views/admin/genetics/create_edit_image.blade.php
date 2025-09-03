@@ -34,7 +34,7 @@
 @if ($image->id)
 <div class="row mb-3">
     <div class="col col-md-6">
-        <img class="mw-100" src="{{ $image->imageUrl.'/'.$image->imageFileName }}" alt="The current gene image file" />
+        <img class="mw-100" src="{{ $image->imageUrl.$image->imageFileName }}" alt="The current gene image file" />
     </div>
     <div class="col-12 col-md-6">
     @endif

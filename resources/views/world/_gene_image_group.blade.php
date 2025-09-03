@@ -7,7 +7,7 @@
         <div class="mt-2">
             @if (count($group) <= 1)
                 <hr />
-                <img class="genome-image rounded mw-100" src="{{ $group[0]->imageUrl.'/'.$group[0]->imageFileName }}" />
+                <img class="genome-image rounded mw-100" src="{{ $group[0]->imageUrl.$group[0]->imageFileName }}" />
                 <div class="world-entry-text mt-2">
                     {!! $group[0]->description !!}
                 </div>
@@ -22,7 +22,7 @@
                 <div class="tab-content">
                     @foreach ($group as $image)
                         <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="image-{{ $image->id }}">
-                            <img class="genome-image rounded mw-100" src="{{ $image->imageUrl.'/'.$image->imageFileName }}" />
+                            <img class="genome-image rounded mw-100" src="{{ $image->imageUrl.$image->imageFileName }}" />
                             <div class="world-entry-text mt-2">
                                 {!! $image->description !!}
                             </div>
