@@ -4,7 +4,7 @@
         $query->where('locis.id', '=', $loci->id);
     });
 
-    $all_query = clone $images;
+    $all_query = clone $query;
 
     $some_images = $query->whereDoesntHave('locis', function ($query) use ($loci) {
         $query->where('locis.id', '!=', $loci->id);

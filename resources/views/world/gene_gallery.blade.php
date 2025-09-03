@@ -7,6 +7,7 @@
 
 <h1>Gene Image Gallery</h1>
 
+@if (count($images))
 {!! $images->render() !!}
 @foreach($images as $group)
     <div class="row world-entry">
@@ -16,5 +17,8 @@
     </div>
 @endforeach
 {!! $images->render() !!}
+@else
+<p>No images found.</p>
+@endif
 
 @endsection
