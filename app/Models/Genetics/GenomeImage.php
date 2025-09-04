@@ -196,7 +196,7 @@ class GenomeImage extends Model
 
         $str = '';
         foreach($locis as $loci) {
-            $gene = (999 - $loci['sort']).'.';
+            $gene = (999 - $loci['sort']).'.'.$loci->id.'.';
 
             if ($loci['type'] == 'gene') {
                 $left = 'n';
