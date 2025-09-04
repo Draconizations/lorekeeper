@@ -196,19 +196,19 @@ class GenomeImage extends Model
 
         $str = '';
         foreach($locis as $loci) {
-            $gene = (1000 - $loci['sort']).'.';
+            $gene = (999 - $loci['sort']).'.';
 
             if ($loci['type'] == 'gene') {
-                $left = '-';
+                $left = 'n';
                 if ($loci['left']) {
                     $l = LociAllele::find($loci['left']);
-                    $left = (1000 - $l->sort).'.'.$l->name;
+                    $left = (999 - $l->sort).'.';
                 }
-                $right = '-';
+                $right = 'n';
                 if ($loci['right']) {
                     $r = LociAllele::find($loci['right']);
-                    $right = (1000 - $r->sort).'.'.$r->name;
-                }
+                    $right = (999 - $r->sort).'.';
+                };
                 $gene .= $left.$right;
             } elseif ($loci['type'] == 'gradient') {
                 $gene .= $loci['position'];
@@ -217,7 +217,7 @@ class GenomeImage extends Model
             }
 
             $separator = '_';
-            $str = $str.$separator.$gene;
+            $str = $str.$gene.$separator;
         }
         return trim($str);
     }
@@ -257,7 +257,9 @@ class GenomeImage extends Model
      * Sorts a collection of images into groups and paginates them.
      */
     public static function collectImages($images) {
-        $images = $images->sortBy('id')->sortBy('genomeString')->values();
+        $images = $images->sortBy('id')->sortBy('genomeString')->sortBy(function ($img) {
+            return strlen($img->genomeString);
+        })->values();
         $image_groups = [];
 
         foreach ($images as $image) {

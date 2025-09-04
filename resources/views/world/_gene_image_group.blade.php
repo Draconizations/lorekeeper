@@ -4,6 +4,7 @@
     </div>
     <div class="card-body">
         <strong>Genome</strong>: {!! $group[0]->genomeDisplay  !!}
+        {{ $group[0]->genomeString }}
         <div class="mt-2">
             @if (count($group) <= 1)
                 <hr />

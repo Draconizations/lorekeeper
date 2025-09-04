@@ -98,7 +98,7 @@ class WorldController extends Controller
         if(isset($data['variant']) && $data['variant'] != 'none') $query->where('type', $data['variant']);
         if(isset($data['name']) && $data['name'] != '') $query->where('name', 'LIKE', '%'.$data['name'].'%');
 
-        $images = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        $images = GenomeImage::query();
         if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $images->visible();
 
         return view('world.genetics', [
@@ -113,7 +113,7 @@ class WorldController extends Controller
      * @todo allow the user to filter by genome
      */
     public function getGeneImageGallery(Request $request) {
-        $query = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        $query = GenomeImage::query();
         if (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics'))) $query->visible();
         $images = $query->get();
 
@@ -131,7 +131,7 @@ class WorldController extends Controller
         $loci = Loci::find($id);
         if (!$loci || (!(Auth::user() && Auth::user()->hasPower('view_hidden_genetics')) && !$loci->is_visible )) abort(404);
 
-        $query = GenomeImage::with('locis')->withCount('locis')->orderBy('locis_count', 'ASC');
+        $query = GenomeImage::query();
         $query->whereHas('locis', function ($query) use ($loci) {
             $query->where('locis.id', '=', $loci->id);
         });
