@@ -202,12 +202,12 @@ class GenomeImage extends Model
                 $left = 'n';
                 if ($loci['left']) {
                     $l = LociAllele::find($loci['left']);
-                    $left = (999 - $l->sort).'.';
+                    $left = $l->sort.'.';
                 }
                 $right = 'n';
                 if ($loci['right']) {
                     $r = LociAllele::find($loci['right']);
-                    $right = (999 - $r->sort).'.';
+                    $right = $r->sort.'.';
                 };
                 $gene .= $left.$right;
             } elseif ($loci['type'] == 'gradient') {
