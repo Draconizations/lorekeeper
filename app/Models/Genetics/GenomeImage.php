@@ -86,7 +86,7 @@ class GenomeImage extends Model
                     'id' => $id,
                     'sort' => $loci->sort,
                     'type' => $loci->type,
-                    'alleles' => $loci->alleles->pluck('name', 'id'),
+                    'alleles' => $loci->alleles->pluck('fullName', 'id'),
                     'length' => $loci->length,
                     'name'  => $loci->name,
                     'left' => '',
