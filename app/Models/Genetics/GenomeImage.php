@@ -184,7 +184,7 @@ class GenomeImage extends Model
      */
     public function getImageUrlAttribute()
     {
-        return asset($this->imageDirectory . '/' . $this->shopImageFileName);
+        return asset($this->imageDirectory . '/' . $this->imageFileName);
     }
 
     /**
