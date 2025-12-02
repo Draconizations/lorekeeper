@@ -438,13 +438,21 @@ main > .row {
 
 /* BROWSE ****************************************************************************************/
 
-.world-entry-image {
+.world-entry-image, .we-entry-image {
     text-align: center;
 }
 
 .world-entry img {
     max-width: 100%;
     height: auto;
+}
+
+.we-entry-image img {
+    object-fit: cover;
+    max-width: 100%;
+    height: auto;
+    background: var(--white);
+    border-radius: 0.5rem;
 }
 
 .world-entry-image img {

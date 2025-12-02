@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\WorldExpansion;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item\ItemCategory;
-use App\Models\WorldExpansion\EventCategory;
-use App\Models\WorldExpansion\FactionType;
 use App\Models\WorldExpansion\Figure;
 use App\Models\WorldExpansion\FigureCategory;
 use Auth;
@@ -34,9 +31,12 @@ class FigureController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.figure_categories', [
-            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'      => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'      => 'figure',
+            'entry_names'     => 'figures',
+            'category_name'   => 'category',
+            'category_names'  => 'categories',
         ]);
     }
 
@@ -53,8 +53,13 @@ class FigureController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.figure_category_page', [
-            'category' => $category,
+        return view('worldexpansion.category_page', [
+            'category'       => $category,
+            'entries'        => $category->figures,
+            'category_name'  => 'category',
+            'category_names' => 'categories',
+            'entry_name'     => 'figure',
+            'entry_names'    => 'figures',
         ]);
     }
 
@@ -99,9 +104,13 @@ class FigureController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.figures', [
-            'figures'    => $query->paginate(20)->appends($request->query()),
-            'categories' => ['none' => 'Any Category'] + FigureCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        return view('worldexpansion.entries', [
+            'entries'           => $query->paginate(20)->appends($request->query()),
+            'categories'        => ['none' => 'Any Category'] + FigureCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'entry_name'        => 'figure',
+            'entry_names'       => 'figures',
+            'category_name'     => 'category',
+            'category_names'    => 'categories',
         ]);
     }
 
@@ -125,12 +134,10 @@ class FigureController extends Controller {
         //     '- Create variable to pass in with both attachments and attachers, for for instance figures'
         // );
 
-        return view('worldexpansion.figure_page', [
-            'figure'                  => $figure,
-            'figure_categories'       => FigureCategory::get(),
-            'item_categories'         => ItemCategory::get(),
-            'event_categories'        => EventCategory::get(),
-            'faction_categories'      => FactionType::get(),
+        return view('worldexpansion.entry_page', [
+            'entry'       => $figure,
+            'entry_name'  => 'figure',
+            'entry_names' => 'figures',
         ]);
     }
 }

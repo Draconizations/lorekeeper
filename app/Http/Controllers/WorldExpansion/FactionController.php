@@ -4,12 +4,9 @@ namespace App\Http\Controllers\WorldExpansion;
 
 use App\Http\Controllers\Controller;
 use App\Models\Currency\Currency;
-use App\Models\WorldExpansion\EventCategory;
 use App\Models\WorldExpansion\Faction;
 use App\Models\WorldExpansion\FactionType;
-use App\Models\WorldExpansion\FaunaCategory;
 use App\Models\WorldExpansion\FigureCategory;
-use App\Models\WorldExpansion\FloraCategory;
 use App\Models\WorldExpansion\LocationType;
 use Auth;
 use Illuminate\Http\Request;
@@ -46,9 +43,11 @@ class FactionController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.faction_types', [
-            'types' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'            => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'            => 'faction',
+            'entry_names'           => 'factions',
+            'category_names'        => 'types',
         ]);
     }
 
@@ -65,8 +64,13 @@ class FactionController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.faction_type_page', [
-            'type' => $type,
+        return view('worldexpansion.category_page', [
+            'category'       => $type,
+            'entries'        => $type->factions,
+            'category_name'  => 'type',
+            'category_names' => 'types',
+            'entry_name'     => 'faction',
+            'entry_names'    => 'factions',
         ]);
     }
 
@@ -111,12 +115,13 @@ class FactionController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.factions', [
-            'factions'     => $query->paginate(20)->appends($request->query()),
-            'types'        => ['none' => 'Any Type'] + FactionType::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
-            'loctypes'     => FactionType::get(),
-            'user_enabled' => Settings::get('WE_user_factions'),
-            'ch_enabled'   => Settings::get('WE_character_factions'),
+        return view('worldexpansion.entries', [
+            'entries'          => $query->paginate(20)->appends($request->query()),
+            'categories'       => ['none' => 'Any Type'] + FactionType::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'entry_name'       => 'faction',
+            'entry_names'      => 'factions',
+            'user_enabled'     => Settings::get('WE_user_factions'),
+            'ch_enabled'       => Settings::get('WE_character_factions'),
         ]);
     }
 
@@ -133,14 +138,13 @@ class FactionController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.faction_page', [
-            'faction'             => $faction,
+        return view('worldexpansion.entry_page', [
+            'entry'               => $faction,
+            'entry_names'         => 'factions',
+            'entry_name'          => 'faction',
             'user_enabled'        => Settings::get('WE_user_factions'),
             'loctypes'            => FactionType::get(),
             'ch_enabled'          => Settings::get('WE_character_factions'),
-            'fauna_categories'    => FaunaCategory::get(),
-            'flora_categories'    => FloraCategory::get(),
-            'event_categories'    => EventCategory::get(),
             'figure_categories'   => FigureCategory::get(),
             'location_categories' => LocationType::get(),
             'currency'            => Currency::where('id', Settings::get('WE_faction_currency'))->first(),

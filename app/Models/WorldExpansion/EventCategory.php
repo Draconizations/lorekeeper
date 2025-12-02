@@ -69,6 +69,16 @@ class EventCategory extends Model {
     **********************************************************************************************/
 
     /**
+     * Displays the event's name with "Events" tacked onto it.
+     * Used in place of a proper plural noun.
+     *
+     * @return string
+     */
+    public function getNamesAttribute() {
+        return $this->name.' Events';
+    }
+
+    /**
      * Displays the location type's name, linked to its purchase page.
      *
      * @return string

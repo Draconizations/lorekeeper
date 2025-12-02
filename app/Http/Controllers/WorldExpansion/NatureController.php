@@ -3,12 +3,10 @@
 namespace App\Http\Controllers\WorldExpansion;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item\ItemCategory;
 use App\Models\WorldExpansion\Fauna;
 use App\Models\WorldExpansion\FaunaCategory;
 use App\Models\WorldExpansion\Flora;
 use App\Models\WorldExpansion\FloraCategory;
-use App\Models\WorldExpansion\LocationType;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -35,9 +33,12 @@ class NatureController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.fauna_categories', [
-            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'       => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'       => 'fauna',
+            'entry_names'      => 'faunas',
+            'category_names'   => 'categories',
+            'category_name'    => 'category',
         ]);
     }
 
@@ -54,8 +55,13 @@ class NatureController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.fauna_category_page', [
-            'category' => $category,
+        return view('worldexpansion.category_page', [
+            'category'       => $category,
+            'entries'        => $category->faunas,
+            'category_name'  => 'category',
+            'category_names' => 'categories',
+            'entry_name'     => 'fauna',
+            'entry_names'    => 'faunas',
         ]);
     }
 
@@ -100,9 +106,13 @@ class NatureController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.faunas', [
-            'faunas'     => $query->paginate(20)->appends($request->query()),
-            'categories' => ['none' => 'Any Category'] + FaunaCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        return view('worldexpansion.entries', [
+            'entries'            => $query->paginate(20)->appends($request->query()),
+            'categories'         => ['none' => 'Any Category'] + FaunaCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'entry_name'         => 'fauna',
+            'entry_names'        => 'faunas',
+            'category_names'     => 'categories',
+            'category_name'      => 'category',
         ]);
     }
 
@@ -119,12 +129,10 @@ class NatureController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.fauna_page', [
-            'fauna'              => $fauna,
-            'fauna_categories'   => FaunaCategory::get(),
-            'flora_categories'   => FloraCategory::get(),
-            'item_categories'    => ItemCategory::get(),
-            'location_types'     => LocationType::get(),
+        return view('worldexpansion.entry_page', [
+            'entry'         => $fauna,
+            'entry_name'    => 'fauna',
+            'entry_names'   => 'faunas',
         ]);
     }
 
@@ -140,9 +148,12 @@ class NatureController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.flora_categories', [
-            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'       => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'       => 'flora',
+            'entry_names'      => 'floras',
+            'category_names'   => 'categories',
+            'category_name'    => 'category',
         ]);
     }
 
@@ -159,8 +170,13 @@ class NatureController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.flora_category_page', [
-            'category' => $category,
+        return view('worldexpansion.category_page', [
+            'category'       => $category,
+            'entries'        => $category->floras,
+            'category_name'  => 'category',
+            'category_names' => 'categories',
+            'entry_name'     => 'flora',
+            'entry_names'    => 'floras',
         ]);
     }
 
@@ -205,9 +221,13 @@ class NatureController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.floras', [
-            'floras'     => $query->paginate(20)->appends($request->query()),
-            'categories' => ['none' => 'Any Category'] + FloraCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        return view('worldexpansion.entries', [
+            'entries'            => $query->paginate(20)->appends($request->query()),
+            'categories'         => ['none' => 'Any Category'] + FloraCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'entry_name'         => 'flora',
+            'entry_names'        => 'floras',
+            'category_names'     => 'categories',
+            'category_name'      => 'category',
         ]);
     }
 
@@ -224,12 +244,10 @@ class NatureController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.flora_page', [
-            'flora'              => $flora,
-            'fauna_categories'   => FaunaCategory::get(),
-            'flora_categories'   => FloraCategory::get(),
-            'item_categories'    => ItemCategory::get(),
-            'location_types'     => LocationType::get(),
+        return view('worldexpansion.entry_page', [
+            'entry'         => $flora,
+            'entry_name'    => 'flora',
+            'entry_names'   => 'floras',
         ]);
     }
 }

@@ -3,10 +3,6 @@
 namespace App\Http\Controllers\WorldExpansion;
 
 use App\Http\Controllers\Controller;
-use App\Models\WorldExpansion\EventCategory;
-use App\Models\WorldExpansion\FactionType;
-use App\Models\WorldExpansion\FaunaCategory;
-use App\Models\WorldExpansion\FloraCategory;
 use App\Models\WorldExpansion\Location;
 use App\Models\WorldExpansion\LocationType;
 use Auth;
@@ -36,9 +32,11 @@ class LocationController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.location_types', [
-            'types' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'      => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'      => 'location',
+            'entry_names'     => 'locations',
+            'category_names'  => 'types',
         ]);
     }
 
@@ -55,8 +53,13 @@ class LocationController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.location_type_page', [
-            'type' => $type,
+        return view('worldexpansion.category_page', [
+            'category'       => $type,
+            'entries'        => $type->locations,
+            'category_name'  => 'type',
+            'category_names' => 'types',
+            'entry_name'     => 'location',
+            'entry_names'    => 'locations',
         ]);
     }
 
@@ -101,12 +104,14 @@ class LocationController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.locations', [
-            'locations'    => $query->paginate(20)->appends($request->query()),
-            'types'        => ['none' => 'Any Type'] + LocationType::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
-            'loctypes'     => LocationType::get(),
-            'user_enabled' => Settings::get('WE_user_locations'),
-            'ch_enabled'   => Settings::get('WE_character_locations'),
+        return view('worldexpansion.entries', [
+            'entries'              => $query->paginate(20)->appends($request->query()),
+            'categories'           => ['none' => 'Any Type'] + LocationType::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'user_enabled'         => Settings::get('WE_user_locations'),
+            'ch_enabled'           => Settings::get('WE_character_locations'),
+            'entry_name'           => 'location',
+            'entry_names'          => 'locations',
+            'category_names'       => 'types',
         ]);
     }
 
@@ -123,15 +128,13 @@ class LocationController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.location_page', [
-            'location'           => $location,
-            'user_enabled'       => Settings::get('WE_user_locations'),
-            'loctypes'           => LocationType::get(),
-            'ch_enabled'         => Settings::get('WE_character_locations'),
-            'fauna_categories'   => FaunaCategory::get(),
-            'flora_categories'   => FloraCategory::get(),
-            'event_categories'   => EventCategory::get(),
-            'faction_categories' => FactionType::get(),
+        return view('worldexpansion.entry_page', [
+            'entry'         => $location,
+            'entry_name'    => 'location',
+            'entry_names'   => 'locations',
+            'user_enabled'  => Settings::get('WE_user_locations'),
+            'loctypes'      => LocationType::get(),
+            'ch_enabled'    => Settings::get('WE_character_locations'),
         ]);
     }
 

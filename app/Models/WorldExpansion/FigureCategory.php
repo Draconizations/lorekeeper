@@ -65,6 +65,15 @@ class FigureCategory extends Model {
 
         ACCESSORS
     **********************************************************************************************/
+    /**
+     * Displays the figure's name with "Figures" tacked onto it.
+     * Used in place of a proper plural noun.
+     *
+     * @return string
+     */
+    public function getNamesAttribute() {
+        return $this->name.' Figures';
+    }
 
     /**
      * Displays the location type's name, linked to its purchase page.

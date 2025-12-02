@@ -3,12 +3,8 @@
 namespace App\Http\Controllers\WorldExpansion;
 
 use App\Http\Controllers\Controller;
-use App\Models\Prompt\PromptCategory;
 use App\Models\WorldExpansion\Event;
 use App\Models\WorldExpansion\EventCategory;
-use App\Models\WorldExpansion\FactionType;
-use App\Models\WorldExpansion\FigureCategory;
-use App\Models\WorldExpansion\LocationType;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -35,9 +31,12 @@ class EventController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.event_categories', [
-            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'      => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'      => 'event',
+            'entry_names'     => 'events',
+            'category_name'   => 'category',
+            'category_names'  => 'categories',
         ]);
     }
 
@@ -54,8 +53,13 @@ class EventController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.event_category_page', [
-            'category' => $category,
+        return view('worldexpansion.category_page', [
+            'category'       => $category,
+            'entries'        => $category->events,
+            'category_name'  => 'category',
+            'category_names' => 'categories',
+            'entry_name'     => 'event',
+            'entry_names'    => 'events',
         ]);
     }
 
@@ -100,9 +104,13 @@ class EventController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.events', [
-            'events'     => $query->paginate(20)->appends($request->query()),
-            'categories' => ['none' => 'Any Category'] + EventCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        return view('worldexpansion.entries', [
+            'entries'           => $query->paginate(20)->appends($request->query()),
+            'categories'        => ['none' => 'Any Category'] + EventCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'entry_name'        => 'event',
+            'entry_names'       => 'events',
+            'category_name'     => 'category',
+            'category_names'    => 'categories',
         ]);
     }
 
@@ -119,13 +127,10 @@ class EventController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.event_page', [
-            'event'              => $event,
-            'figure_categories'  => FigureCategory::get(),
-            'location_types'     => LocationType::get(),
-            'faction_types'      => FactionType::get(),
-            'event_categories'   => EventCategory::get(),
-            'prompt_categories'  => PromptCategory::get(),
+        return view('worldexpansion.entry_page', [
+            'entry'               => $event,
+            'entry_names'         => 'event',
+            'entry_name'          => 'events',
         ]);
     }
 }

@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\WorldExpansion;
 
 use App\Http\Controllers\Controller;
-use App\Models\Item\ItemCategory;
 use App\Models\WorldExpansion\Concept;
 use App\Models\WorldExpansion\ConceptCategory;
-use App\Models\WorldExpansion\FloraCategory;
-use App\Models\WorldExpansion\LocationType;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -33,9 +30,12 @@ class ConceptController extends Controller {
             $query->where('name', 'LIKE', '%'.$name.'%');
         }
 
-        return view('worldexpansion.concept_categories', [
-            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
-
+        return view('worldexpansion.categories', [
+            'categories'      => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+            'entry_name'      => 'concept',
+            'entry_names'     => 'concepts',
+            'category_name'   => 'category',
+            'category_names'  => 'categories',
         ]);
     }
 
@@ -52,8 +52,13 @@ class ConceptController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.concept_category_page', [
-            'category' => $category,
+        return view('worldexpansion.category_page', [
+            'category'       => $category,
+            'entries'        => $category->concepts,
+            'category_name'  => 'category',
+            'category_names' => 'categories',
+            'entry_name'     => 'concept',
+            'entry_names'    => 'concepts',
         ]);
     }
 
@@ -98,9 +103,13 @@ class ConceptController extends Controller {
             $query->visible();
         }
 
-        return view('worldexpansion.concepts', [
-            'concepts'   => $query->paginate(20)->appends($request->query()),
-            'categories' => ['none' => 'Any Category'] + ConceptCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        return view('worldexpansion.entries', [
+            'entries'           => $query->paginate(20)->appends($request->query()),
+            'categories'        => ['none' => 'Any Category'] + ConceptCategory::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'entry_name'        => 'figure',
+            'entry_names'       => 'figures',
+            'category_name'     => 'category',
+            'category_names'    => 'categories',
         ]);
     }
 
@@ -117,12 +126,10 @@ class ConceptController extends Controller {
             abort(404);
         }
 
-        return view('worldexpansion.concept_page', [
-            'concept'             => $concept,
-            'concept_categories'  => ConceptCategory::get(),
-            'flora_categories'    => FloraCategory::get(),
-            'item_categories'     => ItemCategory::get(),
-            'location_types'      => LocationType::get(),
+        return view('worldexpansion.entry_page', [
+            'entry'       => $concept,
+            'entry_name'  => 'category',
+            'entry_names' => 'categories',
         ]);
     }
 }
