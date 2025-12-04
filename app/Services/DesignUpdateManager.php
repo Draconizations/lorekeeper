@@ -18,6 +18,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
 
 class DesignUpdateManager extends Service {
@@ -594,23 +595,23 @@ class DesignUpdateManager extends Service {
             $request->rawFeatures()->update(['character_image_id' => $image->id, 'character_type' => 'Character']);
 
             // Make the image directory if it doesn't exist
-            if (!file_exists($image->imagePath)) {
+            if (!Storage::exists($image->imageDirectory)) {
                 // Create the directory.
-                if (!mkdir($image->imagePath, 0755, true)) {
+                if (!Storage::mkdir($image->imageDirectory, 0755, true)) {
                     $this->setError('error', 'Failed to create image directory.');
 
                     return false;
                 }
-                chmod($image->imagePath, 0755);
+                Storage::chmod($image->imageDirectory, 0755);
             }
 
             // Move the image file to the new image
-            File::move($request->imagePath.'/'.$request->imageFileName, $image->imagePath.'/'.$image->imageFileName);
+            Storage::move($request->imageDirectory.'/'.$request->imageFileName, $image->imageDirectory.'/'.$image->imageFileName);
             // Process and save the image
             (new CharacterManager)->processImage($image);
 
             // The thumbnail is already generated, so it can just be moved without processing
-            File::move($request->thumbnailPath.'/'.$request->thumbnailFileName, $image->thumbnailPath.'/'.$image->thumbnailFileName);
+            Storage::move($request->imageDirectory.'/'.$request->thumbnailFileName, $image->imageDirectory.'/'.$image->thumbnailFileName);
 
             // Set character data and other info such as cooldown time, resell cost and terms etc.
             // since those might be updated with the new design update
