@@ -25,7 +25,11 @@
                     <tr>
                         <td>{!! $member->displayName !!}</td>
                         <td>{!! $member->factionRank ? $member->factionRank->displayName : '-' !!}</td>
-                        <td>{!! $currency->display($member->getCurrencies(true)->where('id', Settings::get('WE_faction_currency'))->first() ? $member->getCurrencies(true)->where('id', Settings::get('WE_faction_currency'))->first()->quantity : 0) !!}</td>
+                        <td>{!! $currency->display(
+                            $member->getCurrencies(true)->where('id', Settings::get('WE_faction_currency'))->first()
+                                ? $member->getCurrencies(true)->where('id', Settings::get('WE_faction_currency'))->first()->quantity
+                                : 0,
+                        ) !!}</td>
                     </tr>
                 @endforeach
             </tbody>

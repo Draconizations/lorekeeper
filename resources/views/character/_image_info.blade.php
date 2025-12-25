@@ -80,7 +80,10 @@
                     @if (config('lorekeeper.extensions.traits_by_category'))
                         <div>
                             @php
-                                $traitgroup = $image->features()->get()->groupBy('feature_category_id');
+                                $traitgroup = $image
+                                    ->features()
+                                    ->get()
+                                    ->groupBy('feature_category_id');
                             @endphp
                             @if ($image->features()->count())
                                 @foreach ($traitgroup as $key => $group)
@@ -104,7 +107,10 @@
                         </div>
                     @else
                         <div>
-                            <?php $features = $image->features()->with('feature.category')->get(); ?>
+                            <?php $features = $image
+                                ->features()
+                                ->with('feature.category')
+                                ->get(); ?>
                             @if ($features->count())
                                 @foreach ($features as $feature)
                                     <div>

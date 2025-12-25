@@ -49,9 +49,9 @@
     <div class="row mx-0">
         @foreach ($entries as $entry)
             @include('worldexpansion._entry', [
-                'entry'         => $entry,
+                'entry' => $entry,
                 'user_enabled' => $user_enabled,
-                'ch_enabled'   => $ch_enabled,
+                'ch_enabled' => $ch_enabled,
             ])
         @endforeach
     </div>

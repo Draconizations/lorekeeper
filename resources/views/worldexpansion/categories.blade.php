@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-    {!! breadcrumbs(['World' => 'world', ucfirst($entry_name).' '.ucfirst($category_names) => 'world/{{ $entry_name }}-{{ $category_names }}']) !!}
+    {!! breadcrumbs(['World' => 'world', ucfirst($entry_name) . ' ' . ucfirst($category_names) => 'world/{{ $entry_name }}-{{ $category_names }}']) !!}
     <h1>{{ ucfirst($entry_name) }} {{ ucfirst($category_names) }}</h1>
 
     <div>
