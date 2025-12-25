@@ -82,7 +82,7 @@ class Character extends Model {
         'number'                => 'required',
         'slug'                  => 'required|alpha_dash',
         'description'           => 'nullable',
-        'sale_value'            => 'nullable',
+        'sale_value'            => 'nullable|decimal:0,2',
         'image'                 => 'required|mimes:jpeg,jpg,gif,png|max:2048',
         'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
         'owner_url'             => 'url|nullable',
@@ -98,7 +98,7 @@ class Character extends Model {
         'number'                => 'required',
         'slug'                  => 'required',
         'description'           => 'nullable',
-        'sale_value'            => 'nullable',
+        'sale_value'            => 'nullable|decimal:0,2',
         'image'                 => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
         'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
     ];
@@ -114,7 +114,7 @@ class Character extends Model {
         'number'      => 'nullable',
         'slug'        => 'nullable',
         'description' => 'nullable',
-        'sale_value'  => 'nullable',
+        'sale_value'  => 'nullable|decimal:0,2',
         'name'        => 'required',
         'image'       => 'nullable|mimes:jpeg,gif,png|max:2048',
         'thumbnail'   => 'nullable|mimes:jpeg,gif,png|max:2048',
@@ -209,7 +209,7 @@ class Character extends Model {
      * Get the character's items.
      */
     public function items() {
-        return $this->belongsToMany(Item::class, 'character_items')->withPivot('count', 'data', 'updated_at', 'id')->whereNull('character_items.deleted_at');
+        return $this->belongsToMany(Item::class, 'character_items')->withPivot('count', 'data', 'updated_at', 'id', 'stack_name')->whereNull('character_items.deleted_at');
     }
 
     /**********************************************************************************************
