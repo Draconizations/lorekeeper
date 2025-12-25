@@ -22,7 +22,7 @@
     </div>
 
     @if ($category->image_extension)
-        <div class="mx-n4"><img src="{{ $category->imageUrl }}" class="w-100" /></div>
+        <div><img src="{{ $category->imageUrl }}" class="w-100 rounded" /></div>
     @elseif ($category->parsed_description)
         <hr />
     @endif

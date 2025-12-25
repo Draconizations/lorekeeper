@@ -26,7 +26,7 @@
     <div>
         <p class="m-0">
             @if ($entry->type || $entry->parent)
-                <span class="h5">
+                <span class="h5 mb-2">
                     @if ($entry->type)
                         <a class="badge badge-primary" href="{{ $entry->type->url }}">{{ ucfirst($entry->type->name) }}</a>
                     @endif
@@ -50,13 +50,13 @@
                     </span>
                 @endif
             @elseif ($entry->category)
-                <span class="h5">
+                <span class="h5 mb-2">
                     <a class="badge badge-primary" href="{{ $entry->category->url }}">{{ ucfirst($entry->category->name) }}</a>
                 </span>
             @endif
             {!! $entry->faction ? '・ Part of ' . ucfirst($entry->faction->displayName) : '' !!}{!! $entry->factionRank ? ' (' . $entry->factionRank->name . ')' : null !!}
             @if ($entry->occur_start || $entry->occur_end)
-                <span class="text-muted">{!! $entry->occur_start ? format_date($entry->occur_start, false) : '' !!} {!! $entry->occur_end ? '- ' . format_date($entry->occur_end, false) : ($entry->occur_start ? '- ' : '').'Ongoing' !!}</span>
+                <span class="text-muted">{!! $entry->occur_start ? format_date($entry->occur_start, false) : '' !!} {!! $entry->occur_end ? '- ' . format_date($entry->occur_end, false) : ($entry->occur_start ? '- ' : '') . 'Ongoing' !!}</span>
             @endif
         </p>
         @if ($entry->birth_date || $entry->death_date)
@@ -67,7 +67,7 @@
         @endisset
     </div>
     @if ($entry->image_extension)
-        <div class="mx-n4"><img src="{{ $entry->imageUrl }}" class="w-100" /></div>
+        <div><img src="{{ $entry->imageUrl }}" class="w-100 rounded" /></div>
     @else
         <hr />
     @endif
