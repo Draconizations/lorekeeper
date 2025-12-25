@@ -19,14 +19,23 @@ Allows a trait to be associated with multiple subtypes. Doesn't restrict trait a
 Useful if you have traits that aren't restricted to one subtype. One use case is if you use the subtype trait index and want users to quickly see all traits they can pick for a particular subtype.
 
 > [!NOTE]
-> This extension might be merged into core develop at some point!
+> This extension has been merged into core develop as of December 17th, 2025 (v3.1). If you're on latest develop, you should have this already.
 
 - [wiki page](http://wiki.lorekeeper.me/index.php?title=Extensions:Multiple_Trait_Subtypes)
 - [v3.0.0 branch](https://github.com/Draconizations/lorekeeper/tree/extension/multiple-trait-subtypes)
-- [v3.1.0 (develop) branch](https://github.com/Draconizations/lorekeeper/tree/extension/multiple-trait-subtypes-v3.1)
+
+### World Expanded - Unified
+![Static Badge](https://img.shields.io/badge/version-v3.0.0-blue) ![Static Badge](https://img.shields.io/badge/status-stable-green)
+![Static Badge](https://img.shields.io/badge/supported-yes!-green)
+
+Built on top of Uri's [v3 version of world-expanded](https://github.com/preimpression/lorekeeper/tree/v3/world-expansion). This version consolidates the blade files for each world expansion page type into one. Category/type pages, as well as the entry pages themselves, now all use the same blade file. This *should* enable you to make layout changes much easier.
+
+The base layout did change a bit as a result of me porting this over from my own LK instance, but it is (should be?) a sensible default.
+
+- [v3.0.0 branch](https://github.com/Draconizations/lorekeeper/tree/v3/world-expansion-unified)
 
 ### Genetic Data Images
-![Static Badge](https://img.shields.io/badge/version-v2.0.0-blue) ![Static Badge](https://img.shields.io/badge/status-locally_tested-yellow)
+![Static Badge](https://img.shields.io/badge/version-v2.0.0-blue) ![Static Badge](https://img.shields.io/badge/status-stable-green)
 ![Static Badge](https://img.shields.io/badge/supported-yes!-green)
 
 Built on top of Pure09's [Character Genetic Data](https://github.com/deep-ci/lorekeeper/tree/ext/v2/character-genetic-data). Uses the same lorekeeper version to make merging easier.
