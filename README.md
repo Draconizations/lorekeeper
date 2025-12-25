@@ -4,7 +4,7 @@ Hi! This repo houses all my **public** lorekeeper extensions. To view any of the
 This branch only serves as an index and to provide any additional info that I cannot add to the extensions themselves.
 
 ### Support & Bug Reports
-You *can* open an issue on this repository, but I'll respond much quicker in the lorekeeper support server. My discord username is `fulmine`, but I tend to go by as `Fulmn` in the LK community!
+You *can* open an issue on this repository, but I'll respond much quicker in the lorekeeper support server. My discord username is `fulmine`, though I used to go by as `Fulmn` in the LK community!
 
 ## List of Extensions
 > [!NOTE]
