@@ -32,7 +32,7 @@ Built on top of Uri's [v3 version of world-expanded](https://github.com/preimpre
 
 The base layout did change a bit as a result of me porting this over from my own LK instance, but it is (should be?) a sensible default.
 
-- [v3.0.0 branch](https://github.com/Draconizations/lorekeeper/tree/v3/world-expansion-unified)
+- [v3.0.0 branch](https://github.com/Draconizations/lorekeeper/tree/extension/world-expansion-unified)
 
 ### Genetic Data Images
 ![Static Badge](https://img.shields.io/badge/version-v2.0.0-blue) ![Static Badge](https://img.shields.io/badge/status-stable-green)
