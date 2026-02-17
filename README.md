@@ -10,6 +10,26 @@ You *can* open an issue on this repository, but I'll respond much quicker in the
 > [!NOTE]
 > If an extension branch is not listed here, it is a work in progress and **should not** be used yet.
 
+### Storage Driver
+![Static Badge](https://img.shields.io/badge/version-v3.0.0-blue) ![Static Badge](https://img.shields.io/badge/status-(mostly)_untested-orange) ![Static Badge](https://img.shields.io/badge/supported-yes!_(might_be_buggy)-green)
+Allows you to use laravel's storage driver and adapters to store files and images. This enables the use of remote storage (i.e. s3 storage) for things like gallery, masterlist and data images. Which files and images get stored remotely is configurable.
+
+Here is an example config file to enable s3 storage.
+```env
+FILESYSTEM_DRIVER=s3
+
+AWS_ACCESS_KEY_ID=your access key
+AWS_SECRET_ACCESS_KEY=your secret key
+AWS_DEFAULT_REGION=us-east-1 # might need changed depending on your provider
+AWS_URL=the public accessible URL of your bucket
+AWS_BUCKET=bucket name
+AWS_ENDPOINT=your s3 endoint URL
+```
+To configure which files are saved and accessed remotely, head over to [/config/storage/lorekeeper.php](https://github.com/Draconizations/lorekeeper/blob/extension/storage-driver/config/lorekeeper/storage.php). By default the following directories (and subdirectories) will be stored remotely.
+- `images` - (public/images) this includes data images! Swap this for both `images/gallery` and `images/characters` if you only want to store gallery and masterlist images.
+- `files` - (public/files) this includes all files in the admin file manager.
+- `css/custom` - (public/css/custom) the custom CSS file, you may or may not want to remove this.
+
 ### Multiple Trait Subtypes
 ![Static Badge](https://img.shields.io/badge/version-v3.0.0/develop-blue) ![Static Badge](https://img.shields.io/badge/status-stable-green)
 ![Static Badge](https://img.shields.io/badge/supported-yes!-green)
