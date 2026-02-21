@@ -22,11 +22,12 @@ class FileManager extends Service {
      * @return bool
      */
     public function createDirectory($dir) {
-        if (Storage::directoryExists($dir)) {
+        $disk = Storage::disk(getDisk($dir));
+        if ($disk->directoryExists($dir)) {
             $this->setError('error', 'Folder already exists.');
         } else {
             // Create the directory.
-            if (!Storage::makeDirectory($dir)) {
+            if (!$disk->makeDirectory($dir)) {
                 $this->setError('error', 'Failed to create folder.');
 
                 return false;
@@ -44,17 +45,19 @@ class FileManager extends Service {
      * @return bool
      */
     public function deleteDirectory($dir) {
-        if (!Storage::directoryExists($dir)) {
+        $disk = Storage::disk(getDisk($dir));
+
+        if (!$disk->directoryExists($dir)) {
             $this->setError('error', 'Directory does not exist.');
 
             return false;
         }
-        if (count(Storage::allFiles($dir))) {
+        if (count($disk->allFiles($dir))) {
             $this->setError('error', 'Cannot delete a folder that contains files.');
 
             return false;
         }
-        Storage::deleteDirectory($dir);
+        $disk->deleteDirectory($dir);
 
         return true;
     }
@@ -69,17 +72,19 @@ class FileManager extends Service {
      * @return bool
      */
     public function renameDirectory($dir, $oldName, $newName) {
-        if (!Storage::exists($dir.'/'.$oldName)) {
+        $disk = Storage::disk(getDisk($dir));
+
+        if (!$disk->exists($dir.'/'.$oldName)) {
             $this->setError('error', 'Directory does not exist.');
 
             return false;
         }
-        if (count(Storage::allFiles($dir))) {
+        if (count($disk->allFiles($dir))) {
             $this->setError('error', 'Cannot delete a folder that contains files.');
 
             return false;
         }
-        Storage::move($dir.'/'.$oldName, $dir.'/'.$newName);
+        $disk->move($dir.'/'.$oldName, $dir.'/'.$newName);
 
         return true;
     }
@@ -96,12 +101,14 @@ class FileManager extends Service {
      */
     public function uploadFile($file, $dir, $name, $isFileManager = true) {
         $directory = ($isFileManager ? '/files'.($dir ? '/'.$dir : '') : '/images');
-        if (!Storage::directoryExists($directory)) {
+
+        $disk = Storage::disk(getDisk($directory));
+        if (!$disk->directoryExists($directory)) {
             $this->setError('error', 'Folder does not exist.');
 
             return false;
         }
-        if (!Storage::putFileAs($directory, $file, $name)) {
+        if (!$disk->putFileAs($directory, $file, $name)) {
             $this->setError('error', 'Could not upload file.');
 
             return false;
@@ -118,7 +125,8 @@ class FileManager extends Service {
      * @return bool
      */
     public function uploadCss($file) {
-        Storage::move($file, '/css/custom.css');
+        $disk = Storage::disk(getDisk('/css/custom'));
+        $disk->move($file, '/css/custom.css');
 
         return true;
     }
@@ -131,12 +139,13 @@ class FileManager extends Service {
      * @return bool
      */
     public function deleteFile($file) {
-        if (!Storage::exists($file)) {
+        $disk = Storage::disk(getDisk($file));
+        if (!$disk->exists($file)) {
             $this->setError('error', 'File does not exist.');
 
             return false;
         }
-        Storage::delete($file);
+        $disk->delete($file);
 
         return true;
     }
@@ -151,16 +160,28 @@ class FileManager extends Service {
      * @return bool
      */
     public function moveFile($oldDir, $newDir, $name) {
-        if (!Storage::fileExists($oldDir.'/'.$name)) {
+        if (!Storage::disk(getDisk($oldDir))->fileExists($oldDir.'/'.$name)) {
             $this->setError('error', 'File does not exist.');
 
             return false;
-        } elseif (!Storage::directoryExists($newDir)) {
+        } elseif (!Storage::disk(getDisk($newDir)->directoryExists($newDir)) {
             $this->setError('error', 'Destination does not exist.');
 
             return false;
         }
-        Storage::move($oldDir.'/'.$name, $newDir.'/'.$name);
+        $file = Storage::disk(getDisk($oldDir))->get($oldDir.'/'.$name);
+
+        if (!Storage::disk(getDisk($oldDir))->delete($oldDir.'/'.$name)) {
+            $this->setError('error', 'Failed to move file.');
+
+            return false;
+        }
+
+        if (!Storage::disk(getDisk($oldDir))->putFileAs($newDir, $file, $name)) {
+            $this->setError('error', 'Failed to move file.');
+
+            return false;
+        }
 
         return true;
     }
@@ -175,12 +196,14 @@ class FileManager extends Service {
      * @return bool
      */
     public function renameFile($dir, $oldName, $newName) {
-        if (!Storage::fileExists($dir.'/'.$oldName)) {
+        $disk = Storage::disk(getDisk($dir));
+
+        if (!$disk->fileExists($dir.'/'.$oldName)) {
             $this->setError('error', 'File does not exist.');
 
             return false;
         }
-        Storage::move($dir.'/'.$oldName, $dir.'/'.$newName);
+        $disk->move($dir.'/'.$oldName, $dir.'/'.$newName);
 
         return true;
     }

@@ -794,9 +794,11 @@ class GalleryManager extends Service {
      * @return array
      */
     private function processImage($data, $submission) {
+        $disk = Storage::disk(getDisk($submission->imageDirectory));
+
         if (isset($submission->hash)) {
-            Storage::delete($submission->imageDirectory.'/'.$submission->imageFileName);
-            Storage::delete($submission->imageDirectory.'/'.$submission->thumbnailFileName);
+            $disk->delete($submission->imageDirectory.'/'.$submission->imageFileName);
+            $disk->delete($submission->imageDirectory.'/'.$submission->thumbnailFileName);
         }
         $submission->hash = randomString(10);
         $submission->extension = config('lorekeeper.settings.gallery_images_format') ?? $data['image']->getClientOriginalExtension();
@@ -804,7 +806,7 @@ class GalleryManager extends Service {
         // Save image itself
         $this->handleImage($data['image'], $submission->imageDirectory, $submission->imageFileName);
 
-        $image = Image::make(Storage::get($submission->imageDirectory.'/'.$submission->imageFileName));
+        $image = Image::make($disk->get($submission->imageDirectory.'/'.$submission->imageFileName));
         if ($image->width() > 2000 || $image->height() > 2000) {
             // For large images (in terms of dimensions),
             // use imagick instead, as it's better at handling them
@@ -830,17 +832,17 @@ class GalleryManager extends Service {
             }
 
             // Save the processed image
-            Storage::put($submission->imageDirectory.'/'.$submission->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
+            $disk->put($submission->imageDirectory.'/'.$submission->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
         }
 
         // Process thumbnail
-        $thumbnail = Image::make($image = Image::make(Storage::get($submission->imageDirectory.'/'.$submission->imageFileName)))
+        $thumbnail = Image::make($image = Image::make($disk->get($submission->imageDirectory.'/'.$submission->imageFileName)))
             ->resize(null, config('lorekeeper.settings.masterlist_thumbnails.height'), function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();
             });
 
-        Storage::put($submission->imageDirectory.'/'.$submission->thumbnailFileName, $thumbnail->encode(config('lorkeeper.settings.masterlist_image_format'), 100));
+        $disk->put($submission->imageDirectory.'/'.$submission->thumbnailFileName, $thumbnail->encode(config('lorkeeper.settings.masterlist_image_format'), 100));
 
         return $submission;
     }

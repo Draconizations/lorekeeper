@@ -187,7 +187,9 @@ class CharacterManager extends Service {
      * @param \App\Models\Character\CharacterImage $characterImage
      */
     public function processImage($characterImage) {
-        $image = Image::make(Storage::get($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
+        $disk = Storage::disk(getDisk($characterImage->imageDirectory));
+
+        $image = Image::make($disk->get($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
 
         if ($image->width() > 2000 || $image->height() > 2000) {
             // For large images (in terms of dimensions),
@@ -245,11 +247,11 @@ class CharacterManager extends Service {
             }
 
             // Save the processed image
-            Storage::put($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
+            $disk->put($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
         } else {
             // Delete fullsize if it was previously created.
-            if (isset($characterImage->fullsize_hash) ? Storage::fileExists($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName) : false) {
-                Storage::delete($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName);
+            if (isset($characterImage->fullsize_hash) ? $disk->fileExists($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName) : false) {
+                $disk->delete($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName);
             }
         }
 
@@ -323,7 +325,7 @@ class CharacterManager extends Service {
         }
 
         // Save the processed image
-        Storage::put($characterImage->imageDirectory.'/'.$characterImage->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
+        $disk->put($characterImage->imageDirectory.'/'.$characterImage->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
     }
 
     /**
@@ -334,6 +336,8 @@ class CharacterManager extends Service {
      * @param mixed                                $isMyo
      */
     public function cropThumbnail($points, $characterImage, $isMyo = false) {
+        $disk = Storage::disk(getDisk($characterImage->imageDirectory));   
+
         $imageProperties = getimagesize(asset($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
         if ($imageProperties[0] > 2000 || $imageProperties[1] > 2000) {
             // For large images (in terms of dimensions),
@@ -341,7 +345,7 @@ class CharacterManager extends Service {
             Config::set('image.driver', 'imagick');
         }
 
-        $image = Image::make(Storage::get($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
+        $image = Image::make($disk->get($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
 
         if (!in_array(config('lorekeeper.settings.masterlist_image_format'), ['png', 'webp']) && config('lorekeeper.settings.masterlist_image_format') != null && config('lorekeeper.settings.masterlist_image_background') != null) {
             $canvas = Image::canvas($image->width(), $image->height(), config('lorekeeper.settings.masterlist_image_background'));
@@ -485,7 +489,7 @@ class CharacterManager extends Service {
         }
 
         // Save the thumbnail
-        Storage::put($characterImage->imageDirectory.'/'.$characterImage->thumbnailFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
+        $disk->put($characterImage->imageDirectory.'/'.$characterImage->thumbnailFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
     }
 
     /**
@@ -821,18 +825,20 @@ class CharacterManager extends Service {
                 throw new \Exception('Failed to log admin action.');
             }
 
+            $disk = Storage::disk(getDisk($image->imageDirectory));
+
             if (config('lorekeeper.settings.masterlist_image_format') != null) {
                 // Remove old versions so that images in various filetypes don't pile up
-                if (Storage::fileExists($image->imageDirectory.'/'.$image->imageFileName)) {
-                    Storage::delete($image->imageDirectory.'/'.$image->imageFileName);
+                if ($disk->fileExists($image->imageDirectory.'/'.$image->imageFileName)) {
+                    $disk->delete($image->imageDirectory.'/'.$image->imageFileName);
                 }
-                if (isset($image->fullsize_hash) ? Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName) : false) {
-                    if (Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName)) {
-                        Storage::delete($image->imageDirectory.'/'.$image->fullsizeFileName);
+                if (isset($image->fullsize_hash) ? $disk->fileExists($image->imageDirectory.'/'.$image->fullsizeFileName) : false) {
+                    if ($disk->fileExists($image->imageDirectory.'/'.$image->fullsizeFileName)) {
+                        $disk->delete($image->imageDirectory.'/'.$image->fullsizeFileName);
                     }
                 }
-                if (Storage::fileExists($image->imageDirectory.'/'.$image->thumbnailFileName)) {
-                    Storage::delete($image->imageDirectory.'/'.$image->thumbnailFileName);
+                if ($disk->fileExists($image->imageDirectory.'/'.$image->thumbnailFileName)) {
+                    $disk->delete($image->imageDirectory.'/'.$image->thumbnailFileName);
                 }
 
                 // Set the image's extension in the DB as defined in settings
@@ -892,22 +898,24 @@ class CharacterManager extends Service {
             if (!$forceDelete && $image->character->character_image_id == $image->id) {
                 throw new \Exception("Cannot delete a character's active image.");
             }
+            
+            $disk = Storage::disk(getDisk($image->imageDirectory));
 
             $image->features()->delete();
 
             $image->delete();
 
             // Delete the image files
-            if (Storage::fileExists($image->imageDirectory.'/'.$image->imageFileName)) {
-                Storage::delete($image->imageDirectory.'/'.$image->imageFileName);
+            if ($disk->fileExists($image->imageDirectory.'/'.$image->imageFileName)) {
+                $disk->delete($image->imageDirectory.'/'.$image->imageFileName);
             }
-            if (isset($image->fullsize_hash) ? Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName) : false) {
-                if (Storage::fileExists($image->imageDirectory.'/'.$image->fullsizeFileName)) {
-                    Storage::delete($image->imageDirectory.'/'.$image->fullsizeFileName);
+            if (isset($image->fullsize_hash) ? $disk->fileExists($image->imageDirectory.'/'.$image->fullsizeFileName) : false) {
+                if ($disk->fileExists($image->imageDirectory.'/'.$image->fullsizeFileName)) {
+                    $disk->delete($image->imageDirectory.'/'.$image->fullsizeFileName);
                 }
             }
-            if (Storage::fileExists($image->imageDirectory.'/'.$image->thumbnailFileName)) {
-                Storage::delete($image->imageDirectory.'/'.$image->thumbnailFileName);
+            if ($disk->fileExists($image->imageDirectory.'/'.$image->thumbnailFileName)) {
+                $disk->delete($image->imageDirectory.'/'.$image->thumbnailFileName);
             }
 
             // Add a log for the character

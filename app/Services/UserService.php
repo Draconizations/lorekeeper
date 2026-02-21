@@ -291,12 +291,14 @@ class UserService extends Service {
             }
             $filename = $user->id.'.'.$avatar->getClientOriginalExtension();
 
+            $disk = Storage::disk(getDisk('images/avatars'));
+            
             if ($user->avatar != 'default.jpg') {
                 $file = 'images/avatars/'.$user->avatar;
                 //$destinationPath = 'uploads/' . $id . '/';
 
-                if (Storage::exists($file)) {
-                    if (!Storage::delete($file)) {
+                if ($disk->exists($file)) {
+                    if (!$disk->delete($file)) {
                         throw new \Exception('Failed to delete old avatar.');
                     }
                 }
@@ -304,7 +306,7 @@ class UserService extends Service {
 
             // Checks if uploaded file is a GIF
             if ($avatar->getClientOriginalExtension() == 'gif') {
-                if (!Storage::putFileAs('images/avatars', $avatar, $filename)) {
+                if (!$disk->putFileAs('images/avatars', $avatar, $filename)) {
                     throw new \Exception('Failed to process avatar.');
                 }
             } else {
@@ -315,7 +317,7 @@ class UserService extends Service {
                 $image = Image::make($avatar);
                 $image->crop($cropWidth, $cropHeight, $data['x0'], $data['y0']);
 
-                if (!Storage::put('images/avatars/'.$filename, $image->resize(150, 150)->encode(null, 100))) {
+                if (!$disk->put('images/avatars/'.$filename, $image->resize(150, 150)->encode(null, 100))) {
                     throw new \Exception('Failed to process avatar.');
                 }
             }

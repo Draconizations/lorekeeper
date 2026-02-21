@@ -60,7 +60,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/lorekeeper.css?v=' . filemtime(public_path('css/lorekeeper.css'))) }}" rel="stylesheet">
+    <link href="{{ asset('css/lorekeeper.css?v=' . Storage::disk(getDisk('css/lorekeeper.css'))->lastModified('css/lorekeeper.css')) }}" rel="stylesheet">
 
     {{-- Font Awesome --}}
     <link href="{{ asset('css/all.min.css') }}" rel="stylesheet">
@@ -78,8 +78,8 @@
     <link href="{{ asset('css/croppie.css') }}" rel="stylesheet">
     <link href="{{ asset('css/selectize.bootstrap4.css') }}" rel="stylesheet">
 
-    @if (file_exists(public_path() . '/css/custom.css'))
-        <link href="{{ asset('css/custom.css') . '?v=' . filemtime(public_path('css/custom.css')) }}" rel="stylesheet">
+    @if (Storage::disk(getDisk('/css/custom.css'))->exists('/css/custom.css'))
+        <link href="{{ asset('css/custom.css') . '?v=' . Storage::disk(getDisk('css/custom.css'))->lastModified('css/custom.css') }}" rel="stylesheet">
     @endif
 
     @include('feed::links')

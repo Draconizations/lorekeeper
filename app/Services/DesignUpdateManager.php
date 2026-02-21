@@ -594,24 +594,26 @@ class DesignUpdateManager extends Service {
             // Shift the image features over to the new image
             $request->rawFeatures()->update(['character_image_id' => $image->id, 'character_type' => 'Character']);
 
+            $disk = Storage::disk(getDisk($image->imageDirectory));
+
             // Make the image directory if it doesn't exist
-            if (!Storage::exists($image->imageDirectory)) {
+            if (!$disk->exists($image->imageDirectory)) {
                 // Create the directory.
-                if (!Storage::mkdir($image->imageDirectory, 0755, true)) {
+                if (!$disk->mkdir($image->imageDirectory, 0755, true)) {
                     $this->setError('error', 'Failed to create image directory.');
 
                     return false;
                 }
-                Storage::chmod($image->imageDirectory, 0755);
+                $disk->chmod($image->imageDirectory, 0755);
             }
 
             // Move the image file to the new image
-            Storage::move($request->imageDirectory.'/'.$request->imageFileName, $image->imageDirectory.'/'.$image->imageFileName);
+            $disk->move($request->imageDirectory.'/'.$request->imageFileName, $image->imageDirectory.'/'.$image->imageFileName);
             // Process and save the image
             (new CharacterManager)->processImage($image);
 
             // The thumbnail is already generated, so it can just be moved without processing
-            Storage::move($request->imageDirectory.'/'.$request->thumbnailFileName, $image->imageDirectory.'/'.$image->thumbnailFileName);
+            $disk->move($request->imageDirectory.'/'.$request->thumbnailFileName, $image->imageDirectory.'/'.$image->thumbnailFileName);
 
             // Set character data and other info such as cooldown time, resell cost and terms etc.
             // since those might be updated with the new design update

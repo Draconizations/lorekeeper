@@ -447,3 +447,27 @@ function prettyProfileName($url) {
         return $url;
     }
 }
+
+/**
+ * Gets the configured disk for the path specified.
+ * Used with laravel Storage
+ * 
+ * @param string $path
+ * 
+ * @return string
+ */
+function getDisk($path) {
+    if (config('filesystems.default') !== 's3') return 'public'; 
+
+    $remote = false;
+    foreach (config('lorekeeper.storage.remote_assets') as $asset_path) {
+        if (str_starts_with(ltrim($path, '/'), $asset_path)) {
+            $remote = true;
+        }
+    }
+    if ($remote) {
+        return 's3';
+    } else {
+        return 'public';
+    }
+}

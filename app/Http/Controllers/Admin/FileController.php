@@ -19,23 +19,23 @@ class FileController extends Controller {
         $filesDirectory = '/files';
 
         // Create the files directory if it doesn't already exist.
-        if (!Storage::directoryExists($filesDirectory)) {
+        if (!Storage::disk(getDisk($filesDirectory))->directoryExists($filesDirectory)) {
             // Create the directory.
-            if (!Storage::makeDirectory($filesDirectory)) {
+            if (!Storage::disk(getDisk($filesDirectory))->makeDirectory($filesDirectory)) {
                 $this->abort(500);
 
                 return false;
             }
         }
-        if ($folder && !Storage::directoryExists($filesDirectory.'/'.$folder)) {
+        if ($folder && !Storage::disk(getDisk($filesDirectory.'/'.$folder))->directoryExists($filesDirectory.'/'.$folder)) {
             abort(404);
         }
         $dir = $filesDirectory.($folder ? '/'.$folder : '');
-        $files = Storage::files($dir);
+        $files = Storage::disk(getDisk($dir))->files($dir);
 
         return view('admin.files.index', [
             'folder'  => $folder,
-            'folders' => Storage::directories($dir),
+            'folders' => Storage::disk(getDisk($dir))->directories($dir),
             'files'   => $files,
         ]);
     }

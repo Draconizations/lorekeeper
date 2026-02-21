@@ -145,7 +145,9 @@ abstract class Service {
     }
 
     public function deleteImage($dir, $name) {
-        Storage::delete(str_replace(public_path(), '', $dir.'/'.$name));
+        $path = str_replace(public_path(), '', $dir.'/'.$name);
+        $disk = Storage::disk(getDisk($path));
+        $disk->delete($path);
     }
 
     /**
@@ -305,10 +307,12 @@ abstract class Service {
     // Moves an old image within the same directory.
     private function moveImage($dir, $name, $oldName, $copy = false) {
         $dir = str_replace(public_path(), '', $dir);
-        if ($copy) {
-            Storage::copy($dir.'/'.$oldName, $dir.'/'.$name);
+        
+        
+        if (!$copy) {
+            $disk->copy($dir.'/'.$oldName, $dir.'/'.$name);
         } else {
-            Storage::move($dir.'/'.$oldName, $dir.'/'.$name);
+            $disk->move($dir.'/'.$oldName, $dir.'/'.$name);
         }
 
         return true;
@@ -317,16 +321,18 @@ abstract class Service {
     // Moves an uploaded image into a directory, checking if it exists.
     private function saveImage($image, $dir, $name, $copy = false) {
         $dir = str_replace(public_path(), '', $dir);
-        if (!Storage::directoryExists($dir)) {
+        $disk = Storage::disk(getDisk($dir));
+        
+        if (!$disk->directoryExists($dir)) {
             // Create the directory.
-            if (!Storage::makeDirectory($dir)) {
+            if (!$disk->makeDirectory($dir)) {
                 $this->setError('error', 'Failed to create image directory.');
 
                 return false;
             }
         }
 
-        if (!Storage::putFileAs($dir, $image, $name)) {
+        if (!$disk->putFileAs($dir, $image, $name)) {
             $this->setError('error', 'Failed to save image.');
 
             return false;

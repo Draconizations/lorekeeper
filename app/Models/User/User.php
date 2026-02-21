@@ -408,7 +408,7 @@ class User extends Authenticatable implements MustVerifyEmail {
             }
         }
 
-        return asset('images/avatars/'.$this->avatar.'?v='.Storage::lastModified('images/avatars/'.$this->avatar));
+        return asset('images/avatars/'.$this->avatar.'?v='.Storage::disk(getDisk('images/avatars'))->lastModified('images/avatars/'.$this->avatar));
     }
 
     /**
