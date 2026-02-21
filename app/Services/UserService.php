@@ -305,10 +305,16 @@ class UserService extends Service {
             // Checks if uploaded file is a GIF
             if ($avatar->getClientOriginalExtension() == 'gif') {
                 if (!Storage::putFileAs('images/avatars', $avatar, $filename)) {
-                    throw new \Exception('Failed to upload avatar.');
+                    throw new \Exception('Failed to process avatar.');
                 }
             } else {
+                // Crop image first
+                $cropWidth = $data['x1'] - $data['x0'];
+                $cropHeight = $data['y1'] - $data['y0'];
+
                 $image = Image::make($avatar);
+                $image->crop($cropWidth, $cropHeight, $data['x0'], $data['y0']);
+
                 if (!Storage::put('images/avatars/'.$filename, $image->resize(150, 150)->encode(null, 100))) {
                     throw new \Exception('Failed to process avatar.');
                 }
