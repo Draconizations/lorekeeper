@@ -338,7 +338,7 @@ class CharacterManager extends Service {
     public function cropThumbnail($points, $characterImage, $isMyo = false) {
         $disk = Storage::disk(getDisk($characterImage->imageDirectory));   
 
-        $imageProperties = getimagesize(asset($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
+        $imageProperties = getimagesize($disk->path($characterImage->imageDirectory.'/'.$characterImage->imageFileName));
         if ($imageProperties[0] > 2000 || $imageProperties[1] > 2000) {
             // For large images (in terms of dimensions),
             // use imagick instead, as it's better at handling them
