@@ -172,13 +172,13 @@ class FileManager extends Service {
         }
         $file = Storage::disk(getDisk($oldDir))->get($oldDir.'/'.$name);
 
-        if (!Storage::disk(getDisk($oldDir))->delete($oldDir.'/'.$name)) {
+        if (!Storage::disk(getDisk($oldDir))->put($newDir.'/'.$name, $file)) {
             $this->setError('error', 'Failed to move file.');
 
             return false;
         }
 
-        if (!Storage::disk(getDisk($oldDir))->putFileAs($newDir, $file, $name)) {
+        if (!Storage::disk(getDisk($oldDir))->delete($oldDir.'/'.$name)) {
             $this->setError('error', 'Failed to move file.');
 
             return false;
