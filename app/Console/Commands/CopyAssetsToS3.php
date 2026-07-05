@@ -34,7 +34,7 @@ class CopyAssetsToS3 extends Command {
         $from = 'public';
         $to = 's3';
 
-        $directories = ['files', 'images'];
+        $directories = config('lorekeeper.storage.remote_assets');
 
         foreach ($directories as $directory) {
             if (!Storage::disk($from)->exists($directory)) {
