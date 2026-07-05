@@ -197,7 +197,7 @@ class CharacterManager extends Service {
      */
     public function processImage($characterImage) {
         $disk = Storage::disk(getDisk($characterImage->imageDirectory));
-        
+
         $imagePath = $characterImage->imageDirectory.'/'.$characterImage->imageFileName;
 
         // For large images (in terms of dimensions),
@@ -283,7 +283,7 @@ class CharacterManager extends Service {
      * @param mixed          $isMyo
      */
     public function cropThumbnail($points, $characterImage, $isMyo = false) {
-        $disk = Storage::disk(getDisk($characterImage->imageDirectory));        
+        $disk = Storage::disk(getDisk($characterImage->imageDirectory));
 
         $imagePath = $characterImage->imageDirectory.'/'.$characterImage->imageFileName;
 
@@ -844,7 +844,7 @@ class CharacterManager extends Service {
             if (!$forceDelete && $image->character->character_image_id == $image->id) {
                 throw new \Exception("Cannot delete a character's active image.");
             }
-            
+
             $disk = Storage::disk(getDisk($image->imageDirectory));
 
             $image->features()->delete();

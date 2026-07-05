@@ -345,7 +345,7 @@ class UserService extends Service {
             $filename = $user->id.'.'.$avatar->getClientOriginalExtension();
 
             $disk = Storage::disk(getDisk('images/avatars'));
-            
+
             if ($user->avatar != 'default.jpg') {
                 $file = 'images/avatars/'.$user->avatar;
                 // $destinationPath = 'uploads/' . $id . '/';
