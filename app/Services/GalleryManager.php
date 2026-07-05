@@ -825,7 +825,7 @@ class GalleryManager extends Service {
         }
 
         // Process thumbnail
-        $thumbnail = Image::make($image = Image::make($disk->get($submission->imageDirectory.'/'.$submission->imageFileName)))
+        $thumbnail = Image::make($disk->get($submission->imageDirectory.'/'.$submission->imageFileName))
             ->resize(null, config('lorekeeper.settings.masterlist_thumbnails.height'), function ($constraint) {
                 $constraint->aspectRatio();
                 $constraint->upsize();

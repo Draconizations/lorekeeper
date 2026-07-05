@@ -196,16 +196,16 @@ class CharacterManager extends Service {
      * @param CharacterImage $characterImage
      */
     public function processImage($characterImage) {
-        $disk = Storage::disk(getDisk($characterImage->imagePath));
+        $disk = Storage::disk(getDisk($characterImage->imageDirectory));
         
-        $imagePath = $characterImage->imagePath.'/'.$characterImage->imageFileName;
+        $imagePath = $characterImage->imageDirectory.'/'.$characterImage->imageFileName;
 
         // For large images (in terms of dimensions),
         // use imagick instead, as it's better at handling them
         $this->configureImageDriver($imagePath);
 
         // Trim transparent parts of image.
-        $image = Image::make($imagePath)->trim('transparent');
+        $image = Image::make($disk->get($imagePath))->trim('transparent');
 
         if (config('lorekeeper.settings.masterlist_image_automation')) {
             // Make the image be square
@@ -246,8 +246,8 @@ class CharacterManager extends Service {
             );
         } else {
             // Delete fullsize if it was previously created.
-            if (isset($characterImage->fullsize_hash) ? $disk->fileExists($characterImage->imagePath.'/'.$characterImage->fullsizeFileName) : false) {
-                $disk->delete($characterImage->imagePath.'/'.$characterImage->fullsizeFileName);
+            if (isset($characterImage->fullsize_hash) ? $disk->fileExists($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName) : false) {
+                $disk->delete($characterImage->imageDirectory.'/'.$characterImage->fullsizeFileName);
             }
         }
 
@@ -272,7 +272,7 @@ class CharacterManager extends Service {
         }
 
         // Save the processed image
-        $disk->put($characterImage->imagePath.'/'.$characterImage->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
+        $disk->put($characterImage->imageDirectory.'/'.$characterImage->imageFileName, $image->encode(config('lorekeeper.settings.masterlist_image_format'), 100));
     }
 
     /**
@@ -283,15 +283,15 @@ class CharacterManager extends Service {
      * @param mixed          $isMyo
      */
     public function cropThumbnail($points, $characterImage, $isMyo = false) {
-        $disk = Storage::disk(getDisk($characterImage->imagePath));        
+        $disk = Storage::disk(getDisk($characterImage->imageDirectory));        
 
-        $imagePath = $characterImage->imagePath.'/'.$characterImage->imageFileName;
+        $imagePath = $characterImage->imageDirectory.'/'.$characterImage->imageFileName;
 
         // For large images (in terms of dimensions),
         // use imagick instead, as it's better at handling them
         $this->configureImageDriver($imagePath);
 
-        $image = Image::make($imagePath);
+        $image = Image::make($disk->get($imagePath));
 
         // Add background if needed
         if (!in_array(config('lorekeeper.settings.masterlist_image_format'), ['png', 'webp']) &&

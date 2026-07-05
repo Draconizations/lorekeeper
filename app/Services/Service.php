@@ -237,7 +237,7 @@ abstract class Service {
     public function deleteImage($dir, $name) {
         $disk = Storage::disk(getDisk($dir));
 
-        $fullPath = $dir.'/'.$name;
+        $fullPath = str_replace(public_path(), '', $dir.'/'.$name);
 
         if ($disk->exists($fullPath)) {
             try {
@@ -508,8 +508,8 @@ abstract class Service {
     private function moveImage($dir, $newName, $oldName, $copy = false) {
         $disk = Storage::disk(getDisk($dir));
 
-        $oldPath = $dir.'/'.$oldName;
-        $newPath = $dir.'/'.$newName;
+        $oldPath = str_replace(public_path(), '', $dir.'/'.$oldName);
+        $newPath = str_replace(public_path(), '', $dir.'/'.$newName);
 
         if (!$disk->exists($oldPath)) {
             return false;
@@ -539,6 +539,7 @@ abstract class Service {
      * @return bool
      */
     private function saveImage($image, $dir, $name, $copy = false) {
+        $dir = str_replace(public_path(), '', $dir);
         $disk = Storage::disk(getDisk($dir));
         
         if (!$disk->directoryExists($dir)) {
@@ -551,11 +552,7 @@ abstract class Service {
         }
 
         try {
-            if ($copy) {
-                $disk->copy($image, $dir.'/'.$name);
-            } else {
-                $disk->move($image, $dir.'/'.$name);
-            }
+            $disk->putFileAs($dir, $image, $name);
 
             return true;
         } catch (\Exception $e) {

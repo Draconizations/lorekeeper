@@ -16,7 +16,7 @@
             <div class="card-body">
                 <div class="d-flex flex-column flex-sm-row">
                     @if (Storage::disk(getDisk('images'))->exists('images/' . $image['filename']))
-                        <img src="{{ asset('images/' . $image['filename'] . '?v=' . Storage::disk(getDisk('images'))->lastModified('images/' . $image['filename'])) }}" class="mw-100" alt="Site image: {{ $image['name'] }}" />
+                        <img src="{{ asset('images/' . $image['filename'] . '?v=' . Storage::disk(getDisk('images'))->lastModified('images/' . $image['filename'])) }}" style="max-width: 200px;" alt="Site image: {{ $image['name'] }}" />
                     @else
                         No image found.
                         <br>
