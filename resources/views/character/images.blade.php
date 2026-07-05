@@ -19,7 +19,8 @@
                 <div class="row mb-3">
                     <div class="col-md-7">
                         <div class="text-center">
-                            <a href="{{ $image->canViewFull(Auth::user() ?? null) && Storage::disk(getDisk($image->imageDirectory . '/' . $image->fullsizeFileName))->exists($image->imageDirectory . '/' . $image->fullsizeFileName) ? $image->fullsizeUrl : $image->imageUrl }}" data-lightbox="entry"
+                            <a href="{{ $image->canViewFull(Auth::user() ?? null) && Storage::disk(getDisk($image->imageDirectory . '/' . $image->fullsizeFileName))->exists($image->imageDirectory . '/' . $image->fullsizeFileName) ? $image->fullsizeUrl : $image->imageUrl }}"
+                                data-lightbox="entry"
                                 data-title="{{ $character->fullName }} [#{{ $image->id }}] {{ $image->canViewFull(Auth::user() ?? null) && Storage::disk(getDisk($image->imageDirectory . '/' . $image->fullsizeFileName))->exists($image->imageDirectory . '/' . $image->fullsizeFileName) ? ' : Full-size Image' : '' }}">
                                 <img src="{{ $image->canViewFull(Auth::user() ?? null) && Storage::disk(getDisk($image->imageDirectory . '/' . $image->fullsizeFileName))->exists($image->imageDirectory . '/' . $image->fullsizeFileName) ? $image->fullsizeUrl : $image->imageUrl }}"
                                     class="image {{ $character->image->showContentWarnings(Auth::user() ?? null) ? 'content-warning' : '' }}" alt="{{ $image->character->fullName }}" />

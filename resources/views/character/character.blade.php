@@ -26,7 +26,9 @@
                         class="image character-image" alt="{{ $character->fullName }}" />
                 </a>
             </div>
-            @if ($character->image->canViewFull(Auth::check() ? Auth::user() : null) && Storage::disk(getDisk($character->image->imageDirectory . '/' . $character->image->fullsizeFileName))->exists($character->image->imageDirectory . '/' . $character->image->fullsizeFileName))
+            @if (
+                $character->image->canViewFull(Auth::check() ? Auth::user() : null) &&
+                    Storage::disk(getDisk($character->image->imageDirectory . '/' . $character->image->fullsizeFileName))->exists($character->image->imageDirectory . '/' . $character->image->fullsizeFileName))
                 <div class="text-right">You are viewing the full-size image. <a href="{{ $character->image->imageUrl }}">View watermarked image</a>?</div>
             @endif
         </div>
