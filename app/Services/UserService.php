@@ -10,7 +10,7 @@ use App\Models\Gallery\GallerySubmission;
 use App\Models\Invitation;
 use App\Models\Rank\Rank;
 use App\Models\Submission\Submission;
-use App\Models\Trade;
+use App\Models\Trade\Trade;
 use App\Models\User\User;
 use App\Models\User\UserUpdateLog;
 use Carbon\Carbon;
@@ -36,7 +36,7 @@ class UserService extends Service {
      *
      * @param array $data
      *
-     * @return \App\Models\User\User
+     * @return User
      */
     public function createUser($data) {
         // If the rank is not given, create a user with the lowest existing rank.
@@ -111,7 +111,7 @@ class UserService extends Service {
      *
      * @param array $data
      *
-     * @return \App\Models\User\User
+     * @return User
      */
     public function updateUser($data) {
         $user = User::find($data['id']);
@@ -128,8 +128,8 @@ class UserService extends Service {
     /**
      * Updates the user's password.
      *
-     * @param array                 $data
-     * @param \App\Models\User\User $user
+     * @param array $data
+     * @param User  $user
      *
      * @return bool
      */
@@ -158,8 +158,8 @@ class UserService extends Service {
     /**
      * Updates the user's email and resends a verification email.
      *
-     * @param array                 $data
-     * @param \App\Models\User\User $user
+     * @param array $data
+     * @param User  $user
      *
      * @return bool
      */
@@ -168,7 +168,13 @@ class UserService extends Service {
         $user->email_verified_at = null;
         $user->save();
 
-        $user->sendEmailVerificationNotification();
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Exception $e) {
+            $this->setError('error', 'Email updated successfully! However, we couldn\'t send the verification email due to email configuration issues. Please contact an administrator.');
+
+            return false;
+        }
 
         return true;
     }
@@ -275,17 +281,64 @@ class UserService extends Service {
     }
 
     /**
-     * Updates the user's avatar.
+     * Updates user's warning visibility setting.
      *
-     * @param \App\Models\User\User $user
-     * @param mixed                 $avatar
+     * @param mixed $data
+     * @param mixed $user
      *
      * @return bool
      */
-    public function updateAvatar($avatar, $user) {
+    public function updateContentWarningVisibility($data, $user) {
         DB::beginTransaction();
 
         try {
+            $user->settings->content_warning_visibility = $data;
+            $user->settings->save();
+
+            return $this->commitReturn(true);
+        } catch (\Exception $e) {
+            $this->setError('error', $e->getMessage());
+        }
+
+        return $this->rollbackReturn(false);
+    }
+
+    /**
+     * Updates user's profile comment setting.
+     *
+     * @param mixed $data
+     * @param mixed $user
+     *
+     * @return bool
+     */
+    public function updateProfileCommentSetting($data, $user) {
+        DB::beginTransaction();
+
+        try {
+            $user->settings->allow_profile_comments = $data ?? 0;
+            $user->settings->save();
+
+            return $this->commitReturn(true);
+        } catch (\Exception $e) {
+            $this->setError('error', $e->getMessage());
+        }
+
+        return $this->rollbackReturn(false);
+    }
+
+    /**
+     * Updates the user's avatar.
+     *
+     * @param User  $user
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    public function updateAvatar($data, $user) {
+        DB::beginTransaction();
+
+        try {
+            $avatar = $data['avatar'];
             if (!$avatar) {
                 throw new \Exception('Please upload a file.');
             }
@@ -295,7 +348,7 @@ class UserService extends Service {
             
             if ($user->avatar != 'default.jpg') {
                 $file = 'images/avatars/'.$user->avatar;
-                //$destinationPath = 'uploads/' . $id . '/';
+                // $destinationPath = 'uploads/' . $id . '/';
 
                 if ($disk->exists($file)) {
                     if (!$disk->delete($file)) {
@@ -310,13 +363,12 @@ class UserService extends Service {
                     throw new \Exception('Failed to process avatar.');
                 }
             } else {
-                // Crop image first
+                // crop image first
                 $cropWidth = $data['x1'] - $data['x0'];
                 $cropHeight = $data['y1'] - $data['y0'];
 
                 $image = Image::make($avatar);
                 $image->crop($cropWidth, $cropHeight, $data['x0'], $data['y0']);
-
                 if (!$disk->put('images/avatars/'.$filename, $image->resize(150, 150)->encode(null, 100))) {
                     throw new \Exception('Failed to process avatar.');
                 }
@@ -336,8 +388,8 @@ class UserService extends Service {
     /**
      * Updates a user's username.
      *
-     * @param string                $username
-     * @param \App\Models\User\User $user
+     * @param string $username
+     * @param User   $user
      *
      * @return bool
      */
@@ -379,7 +431,7 @@ class UserService extends Service {
             UserUpdateLog::create([
                 'staff_id' => null,
                 'user_id'  => $user->id,
-                'data'     => json_encode(['old_name' => $user->name, 'new_name' => $username]),
+                'data'     => ['old_name' => $user->name, 'new_name' => $username],
                 'type'     => 'Username Change',
             ]);
 
@@ -397,9 +449,9 @@ class UserService extends Service {
     /**
      * Bans a user.
      *
-     * @param array                 $data
-     * @param \App\Models\User\User $user
-     * @param \App\Models\User\User $staff
+     * @param array $data
+     * @param User  $user
+     * @param User  $staff
      *
      * @return bool
      */
@@ -460,7 +512,7 @@ class UserService extends Service {
                     $tradeManager->rejectTrade(['trade' => $trade, 'reason' => 'User has been banned from site activity.'], $staff);
                 }
 
-                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => json_encode(['is_banned' => 'Yes', 'ban_reason' => $data['ban_reason'] ?? null]), 'type' => 'Ban']);
+                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => ['is_banned' => 'Yes', 'ban_reason' => $data['ban_reason'] ?? null], 'type' => 'Ban']);
 
                 $user->settings->banned_at = Carbon::now();
 
@@ -468,7 +520,7 @@ class UserService extends Service {
                 $user->rank_id = Rank::orderBy('sort')->first()->id;
                 $user->save();
             } else {
-                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => json_encode(['ban_reason' => $data['ban_reason'] ?? null]), 'type' => 'Ban Update']);
+                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => ['ban_reason' => $data['ban_reason'] ?? null], 'type' => 'Ban Update']);
             }
 
             $user->settings->ban_reason = isset($data['ban_reason']) && $data['ban_reason'] ? $data['ban_reason'] : null;
@@ -485,8 +537,8 @@ class UserService extends Service {
     /**
      * Unbans a user.
      *
-     * @param \App\Models\User\User $user
-     * @param \App\Models\User\User $staff
+     * @param User $user
+     * @param User $staff
      *
      * @return bool
      */
@@ -505,7 +557,7 @@ class UserService extends Service {
                 $user->settings->ban_reason = null;
                 $user->settings->banned_at = null;
                 $user->settings->save();
-                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => json_encode(['is_banned' => 'No']), 'type' => 'Unban']);
+                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => ['is_banned' => 'No'], 'type' => 'Unban']);
             }
 
             return $this->commitReturn(true);
@@ -519,9 +571,9 @@ class UserService extends Service {
     /**
      * Deactivates a user.
      *
-     * @param array                 $data
-     * @param \App\Models\User\User $user
-     * @param \App\Models\User\User $staff
+     * @param array $data
+     * @param User  $user
+     * @param User  $staff
      *
      * @return bool
      */
@@ -582,7 +634,7 @@ class UserService extends Service {
                     $tradeManager->rejectTrade(['trade' => $trade, 'reason' => 'User\'s account was deactivated.'], $staff);
                 }
 
-                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => json_encode(['is_deactivated' => 'Yes', 'deactivate_reason' => $data['deactivate_reason'] ?? null]), 'type' => 'Deactivation']);
+                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => ['is_deactivated' => 'Yes', 'deactivate_reason' => $data['deactivate_reason'] ?? null], 'type' => 'Deactivation']);
 
                 $user->settings->deactivated_at = Carbon::now();
 
@@ -598,7 +650,7 @@ class UserService extends Service {
                     'staff_name' => $staff->name,
                 ]);
             } else {
-                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => json_encode(['deactivate_reason' => $data['deactivate_reason'] ?? null]), 'type' => 'Deactivation Update']);
+                UserUpdateLog::create(['staff_id' => $staff->id, 'user_id' => $user->id, 'data' => ['deactivate_reason' => $data['deactivate_reason'] ?? null], 'type' => 'Deactivation Update']);
             }
 
             $user->settings->deactivate_reason = isset($data['deactivate_reason']) && $data['deactivate_reason'] ? $data['deactivate_reason'] : null;
@@ -615,8 +667,8 @@ class UserService extends Service {
     /**
      * Reactivates a user account.
      *
-     * @param \App\Models\User\User $user
-     * @param \App\Models\User\User $staff
+     * @param User $user
+     * @param User $staff
      *
      * @return bool
      */
@@ -635,7 +687,7 @@ class UserService extends Service {
                 $user->settings->deactivate_reason = null;
                 $user->settings->deactivated_at = null;
                 $user->settings->save();
-                UserUpdateLog::create(['staff_id' => $staff ? $staff->id : $user->id, 'user_id' => $user->id, 'data' => json_encode(['is_deactivated' => 'No']), 'type' => 'Reactivation']);
+                UserUpdateLog::create(['staff_id' => $staff ? $staff->id : $user->id, 'user_id' => $user->id, 'data' => ['is_deactivated' => 'No'], 'type' => 'Reactivation']);
             }
 
             Notifications::create('USER_REACTIVATED', User::find(Settings::get('admin_user')), [
