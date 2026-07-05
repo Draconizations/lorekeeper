@@ -164,7 +164,6 @@ class FileManager extends Service {
             $this->setError('error', 'File does not exist.');
 
             return false;
-
         } elseif (!Storage::disk(getDisk($newDir))->directoryExists($newDir)) {
             $this->setError('error', 'Destination does not exist.');
 

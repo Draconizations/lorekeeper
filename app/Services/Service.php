@@ -307,8 +307,7 @@ abstract class Service {
     // Moves an old image within the same directory.
     private function moveImage($dir, $name, $oldName, $copy = false) {
         $dir = str_replace(public_path(), '', $dir);
-        
-        
+
         if (!$copy) {
             $disk->copy($dir.'/'.$oldName, $dir.'/'.$name);
         } else {
@@ -322,7 +321,7 @@ abstract class Service {
     private function saveImage($image, $dir, $name, $copy = false) {
         $dir = str_replace(public_path(), '', $dir);
         $disk = Storage::disk(getDisk($dir));
-        
+
         if (!$disk->directoryExists($dir)) {
             // Create the directory.
             if (!$disk->makeDirectory($dir)) {
